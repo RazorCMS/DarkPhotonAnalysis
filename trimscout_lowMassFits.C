@@ -12,7 +12,50 @@
 void trimscout_lowMassFits(string txtfile, const char* outfilename = "test.root", bool isMC=false, bool isData=true) {
     TFile* outfile = new TFile(outfilename, "RECREATE");
     TTree* outtree = new TTree("tree", "tree");
-  
+
+
+    double wgtsum  = 1.0;//isMC ? sumwgt(treepath) : 1.0;
+    float  puwgt   = 1.0;
+    float  mcwgt   = 1.0;
+    float  m1pt    = 0.0;
+    float  m1eta   = 0.0;
+    float  m1phi   = 0.0;
+    float  m1iso   = 0.0;
+    float  m2pt    = 0.0;
+    float  m2eta   = 0.0;
+    float  m2phi   = 0.0;
+    float  m2iso   = 0.0;
+    float  mass    = 0.0;
+    short  category = 0.0;
+    //float  massCatB    = 0.0;
+    //float  massCatC    = 0.0;
+    float  mass4   = 0.0;
+    char   m1id    = 0;
+    char   m2id    = 0;
+    char   m3id    = 0;
+    char   m4id    = 0;
+    float  m1ch    = 0.;
+    float  m2ch    = 0.;
+    float  m3ch    = 0.;
+    float  m4ch    = 0.;
+    vector<bool> l1Bools;
+    unsigned nvtx  = 0;
+    unsigned Run   = 0;
+    unsigned LumSec   = 0;
+
+    if (isMC)
+    {
+      outtree->Branch("mcwgt" , &mcwgt , "mcwgt/F" );
+      outtree->Branch("puwgt" , &puwgt , "puwgt/F" );
+    }
+    outtree->Branch("mass"  , &mass  , "mass/F"  );
+    outtree->Branch("category"  , &category  , "category/i"  );
+    //outtree->Branch("massCatB"  , &massCatB  , "massCatB/F"  );
+    //outtree->Branch("massCatC"  , &massCatC  , "massCatC/F"  );
+    outtree->Branch("nvtx"  , &nvtx  , "nvtx/i"  );
+    outtree->Branch("Run"   , &Run   , "Run/i"  );
+    outtree->Branch("LumSec", &LumSec, "LumSec/i"  );
+
     // Full mass spectrum
     TH1F* fullMassCatA = new TH1F("massCatA", "massCatA", 1000, 0.2, 12.);
     TH1F* fullMassCatB = new TH1F("massCatB", "massCatB", 1000, 0.2, 12.);
@@ -41,31 +84,38 @@ void trimscout_lowMassFits(string txtfile, const char* outfilename = "test.root"
     double masses[] = {m1, m2, m3, m4, m5};
     float frac = 0.2;
 
-    for (int i = 0; i < 5; i++) {
-        if (i >= 2) {
-            frac = 0.1;
-        }
+    for (int i = 0; i < 5; i++)
+    {
+      if (i >= 2)
+      {
+        frac = 0.1;
+      }
 
-        hist_massCatA[i] = new TH1D(Form("hist_massCatA%d", i), Form("hist_massCatA%d", i), 100, (1.-frac)*masses[i], (1.+frac)*masses[i]);
-        hist_massCatA[i]->Sumw2();
-
-        hist_massCatB[i] = new TH1D(Form("hist_massCatB%d", i), Form("hist_massCatB%d", i), 100, (1.-frac)*masses[i], (1.+frac)*masses[i]);
-        hist_massCatB[i]->Sumw2();
-
-        hist_massCatC[i] = new TH1D(Form("hist_massCatC%d", i), Form("hist_massCatC%d", i), 100, (1.-frac)*masses[i], (1.+frac)*masses[i]);
-        hist_massCatC[i]->Sumw2();
+      hist_massCatA[i] = new TH1D(Form("hist_massCatA%d", i), Form("hist_massCatA%d", i), 100, (1.-frac)*masses[i], (1.+frac)*masses[i]);
+      hist_massCatA[i]->Sumw2();
+      hist_massCatB[i] = new TH1D(Form("hist_massCatB%d", i), Form("hist_massCatB%d", i), 100, (1.-frac)*masses[i], (1.+frac)*masses[i]);
+      hist_massCatB[i]->Sumw2();
+      hist_massCatC[i] = new TH1D(Form("hist_massCatC%d", i), Form("hist_massCatC%d", i), 100, (1.-frac)*masses[i], (1.+frac)*masses[i]);
+      hist_massCatC[i]->Sumw2();
     }
 
     string ntuple;
     ifstream file(txtfile);
+    TChain* chain = new TChain("mmtree/tree");
 
-    if (file.is_open()) {
-    while (getline(file, ntuple)) {
+    if (file.is_open())
+    {
+      while (getline(file, ntuple))
+      {
         cout << ntuple << endl;
-
-        TChain* chain = new TChain("mmtree/tree");
         chain->Add((TString)ntuple.c_str());
-        cout<<"here2"<<endl;
+        std::cout<<"here2"<< std::endl;
+      }
+    }
+    else
+    {
+      std::cout << "Unable to open file." << std::endl;
+    }
         TTreeReader reader(chain);
         cout<<"here3"<<endl;
         TTreeReaderValue<double>*                      wgt;
@@ -110,120 +160,100 @@ void trimscout_lowMassFits(string txtfile, const char* outfilename = "test.root"
         if (isMC || !isData) {
             wgt  = new TTreeReaderValue<double>(reader, "wgt" );
             xsec = new TTreeReaderValue<double>(reader, "xsec");
-
         }
          cout<<"here8"<<endl;
 
-
-        double wgtsum  = 1.0;//isMC ? sumwgt(treepath) : 1.0;
-        float  puwgt   = 1.0;
-        float  mcwgt   = 1.0;
-        float  m1pt    = 0.0;        
-        float  m1eta   = 0.0;        
-        float  m1phi   = 0.0;        
-        float  m1iso   = 0.0;        
-        float  m2pt    = 0.0;        
-        float  m2eta   = 0.0;        
-        float  m2phi   = 0.0;        
-        float  m2iso   = 0.0;        
-        float  mass    = 0.0;        
-        float  massCatA    = 0.0;        
-        float  massCatB    = 0.0;        
-        float  massCatC    = 0.0;        
-        float  mass4   = 0.0;        
-        char   m1id    = 0;
-        char   m2id    = 0;
-        char   m3id    = 0;
-        char   m4id    = 0;
-        float  m1ch    = 0.; 
-        float  m2ch    = 0.;
-        float  m3ch    = 0.; 
-        float  m4ch    = 0.; 
-        vector<bool> l1Bools;
-        unsigned nvtx  = 0;
-        unsigned Run   = 0;
-        unsigned LumSec   = 0;
-
-        if (isMC) {
-        outtree->Branch("mcwgt" , &mcwgt , "mcwgt/F" );
-        outtree->Branch("puwgt" , &puwgt , "puwgt/F" );
-        }
-        outtree->Branch("mass"  , &mass  , "mass/F"  );
-        outtree->Branch("massCatA"  , &massCatA  , "massCatA/F"  );
-        outtree->Branch("massCatB"  , &massCatB  , "massCatB/F"  );
-        outtree->Branch("massCatC"  , &massCatC  , "massCatC/F"  );
-        outtree->Branch("nvtx"  , &nvtx  , "nvtx/i"  );
-        outtree->Branch("Run"   , &Run   , "Run/i"  );
-        outtree->Branch("LumSec", &LumSec, "LumSec/i"  );
-
+         wgtsum  = 1.0;//isMC ? sumwgt(treepath) : 1.0;
+         puwgt   = 1.0;
+         mcwgt   = 1.0;
+         m1pt    = 0.0;
+         m1eta   = 0.0;
+         m1phi   = 0.0;
+         m1iso   = 0.0;
+         m2pt    = 0.0;
+         m2eta   = 0.0;
+         m2phi   = 0.0;
+         m2iso   = 0.0;
+         mass    = 0.0;
+         category    = -1;
+         //massCatB    = 0.0;
+         //massCatC    = 0.0;
+         mass4   = 0.0;
+         m1id    = 0;
+         m2id    = 0;
+         m3id    = 0;
+         m4id    = 0;
+         m1ch    = 0.;
+         m2ch    = 0.;
+         m3ch    = 0.;
+         m4ch    = 0.;
+         //vector<bool> l1Bools;
+         nvtx  = 0;
+         Run   = 0;
+         LumSec   = 0;
         //outtree->Branch("l1Bools"  , &l1Bools , "l1Bools" );
         int p=0;
-        while(reader.Next()) {
-        //if(!isData[f]) {if(pdgid->size()<2 || motherid->size()<2) continue;}
-        if (((*hlt) & 2) == 0) continue;   
-        bool passIso=false;
-        bool passIsoLoose=false;
-        double ea = (isMC ? 0.3 : 0.45);
-        std::vector<unsigned> goodmuons;
-        for (std::size_t i = 0; i < mpt->size(); i++) {
-          // if ((*nmhits)[i] == 0)     continue;
-          if ((*nphits)[i] == 0)     continue;
-          if ((*ntklayers)[i] <= 5)  continue;
-          if ((*chi2)[i] > 10.)      continue;
+        while(reader.Next())
+        {
+          //if(!isData[f]) {if(pdgid->size()<2 || motherid->size()<2) continue;}
+          if (((*hlt) & 2) == 0) continue;
+          bool passIso=false;
+          bool passIsoLoose=false;
+          double ea = (isMC ? 0.3 : 0.45);
+          std::vector<unsigned> goodmuons;
+          for (std::size_t i = 0; i < mpt->size(); i++)
+          {
+            // if ((*nmhits)[i] == 0)     continue;
+            if ((*nphits)[i] == 0)     continue;
+            if ((*ntklayers)[i] <= 5)  continue;
+            if ((*chi2)[i] > 10.)      continue;
             double iso = (*cpiso)[i] + (*nhiso)[i] + (*phiso)[i] - ea*(*rho);
             //	  if (iso > 10.0) continue;
 
             goodmuons.push_back(i);
-        }
-
-        if (goodmuons.size() < 2) continue;
-
-        unsigned idx1 = goodmuons[0];
-        unsigned idx2 = goodmuons[1];
-        unsigned idx3 = goodmuons[2];
-        unsigned idx4 = goodmuons[3];
-
-        if((*tkiso)[goodmuons[0]]<0.02 && (*tkiso)[goodmuons[1]]<0.02 ) passIso=true;
-        if((*tkiso)[goodmuons[0]]<0.05 && (*tkiso)[goodmuons[1]]<0.05 ) passIsoLoose=true;
-
-        if ((*mpt)[goodmuons[0]] < (*mpt)[goodmuons[1]]) {
+          }
+          if (goodmuons.size() < 2) continue;
+          unsigned idx1 = goodmuons[0];
+          unsigned idx2 = goodmuons[1];
+          unsigned idx3 = goodmuons[2];
+          unsigned idx4 = goodmuons[3];
+          if((*tkiso)[goodmuons[0]]<0.02 && (*tkiso)[goodmuons[1]]<0.02 ) passIso=true;
+          if((*tkiso)[goodmuons[0]]<0.05 && (*tkiso)[goodmuons[1]]<0.05 ) passIsoLoose=true;
+          if ((*mpt)[goodmuons[0]] < (*mpt)[goodmuons[1]])
+          {
             idx1 = goodmuons[1];
             idx2 = goodmuons[0];
-            }
+          }
 
-        TLorentzVector mm;
-        TLorentzVector mmmm;
-        TLorentzVector m1;
-        TLorentzVector m2;
-        TLorentzVector m3;
-        TLorentzVector m4;
-        m1.SetPtEtaPhiM((*mpt)[idx1], (*meta)[idx1], (*mphi)[idx1], 0.1057);
-        m2.SetPtEtaPhiM((*mpt)[idx2], (*meta)[idx2], (*mphi)[idx2], 0.1057);
-        //m3.SetPtEtaPhiM((*mpt)[idx3], (*meta)[idx3], (*mphi)[idx3], 0.1057);
-        //m4.SetPtEtaPhiM((*mpt)[idx4], (*meta)[idx4], (*mphi)[idx4], 0.1057);
-
-        mm += m1;
-        mm += m2;
-        m1pt   = m1.Pt();
-        m1eta  = m1.Eta();
-        m1phi  = m1.Phi();
-        m1iso  = (*cpiso)[idx1] + (*phiso)[idx1] + (*nhiso)[idx1] - ea*(*rho);
-        m1id   = (*mid)[idx1];
-        m1ch   = (*mcharge)[idx1];
-
-        m2pt   = m2.Pt();
-        m2eta  = m2.Eta();
-        m2phi  = m2.Phi();
-        m2iso  = (*cpiso)[idx2] + (*phiso)[idx2] + (*nhiso)[idx2] - ea*(*rho);
-        m2id   = (*mid)[idx2];
-        m2ch   = (*mcharge)[idx2];
-
-        Run=*run;
-        LumSec=*lumSec;
-	
-	// cout<<"4 Muons in the Event"<<endl;
- /*
-HIGH MASS TRIGGER NO CORRELATION: ID  0 - 4 - 9
+          TLorentzVector mm;
+          TLorentzVector mmmm;
+          TLorentzVector m1;
+          TLorentzVector m2;
+          TLorentzVector m3;
+          TLorentzVector m4;
+          m1.SetPtEtaPhiM((*mpt)[idx1], (*meta)[idx1], (*mphi)[idx1], 0.1057);
+          m2.SetPtEtaPhiM((*mpt)[idx2], (*meta)[idx2], (*mphi)[idx2], 0.1057);
+          //m3.SetPtEtaPhiM((*mpt)[idx3], (*meta)[idx3], (*mphi)[idx3], 0.1057);
+          //m4.SetPtEtaPhiM((*mpt)[idx4], (*meta)[idx4], (*mphi)[idx4], 0.1057);
+          mm += m1;
+          mm += m2;
+          m1pt   = m1.Pt();
+          m1eta  = m1.Eta();
+          m1phi  = m1.Phi();
+          m1iso  = (*cpiso)[idx1] + (*phiso)[idx1] + (*nhiso)[idx1] - ea*(*rho);
+          m1id   = (*mid)[idx1];
+          m1ch   = (*mcharge)[idx1];
+          m2pt   = m2.Pt();
+          m2eta  = m2.Eta();
+          m2phi  = m2.Phi();
+          m2iso  = (*cpiso)[idx2] + (*phiso)[idx2] + (*nhiso)[idx2] - ea*(*rho);
+          m2id   = (*mid)[idx2];
+          m2ch   = (*mcharge)[idx2];
+          Run=*run;
+          LumSec=*lumSec;
+          // cout<<"4 Muons in the Event"<<endl;
+          /*
+          HIGH MASS TRIGGER NO CORRELATION: ID  0 - 4 - 9
 'L1_DoubleMu_12_5',
 'L1_DoubleMu_12_8',
 'L1_DoubleMu_13_6',
@@ -260,96 +290,102 @@ THE LOW MASS TRIGGER TO MEASURE FAKE: ID 18 - 20 [ONLY IN FROM RUN 305405]
 	//'L1_DoubleMu4p5_SQ_OS_dR_Max1p2', [16]
 	//
         mass   = mm.M();
+        if( mass > 10. ) continue;
 	//	mass4  = mmmm.M();
         nvtx = *nverts;
         //outtree->Fill();
-	
+
         bool passPVconstraint = false;
-	float BSx = 0.084;
-	float BSy = -0.03;
+        float BSx = 0.084;
+        float BSy = -0.03;
 //	if(treepath.find("_13TeV") != string::npos){ BSx = -0.029; BSy = 0.07;}
 	float slidePt1 = mm.M()/3.;
 	float slidePt2 = mm.M()/4.;
 
 	float maxEta=TMath::Max(abs(m1eta),abs(m2eta));
-	
+
 
 	//cout<<nvtx<<endl;
-	if(nvtx>0. ){
-            if(  sqrt( ((*vtxX)[0] - BSx)*((*vtxX)[0] - BSx) + ((*vtxY)[0] - BSy)*((*vtxY)[0] - BSy) )  < 0.2 ) passPVconstraint = true;
-	  }
+	if(nvtx>0. )
+  {
+    if(  sqrt( ((*vtxX)[0] - BSx)*((*vtxX)[0] - BSx) + ((*vtxY)[0] - BSy)*((*vtxY)[0] - BSy) )  < 0.2 ) passPVconstraint = true;
+  }
 
-	
+
 	if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && passIsoLoose) forLimitMassZ->Fill(mass);
-	
-	if(mass>60. && mass<120.){
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && 	          passIsoLoose){ forResolutionAMassZ->Fill(mass); }
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose){ forResolutionBMassZ->Fill(mass); }
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose){ forResolutionCMassZ->Fill(mass); }
 
-	}
-
-
-	if(mass>2.6 && mass<3.5){
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && 		  passIsoLoose){ forResolutionAMassJPsi->Fill(mass); }
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose){ forResolutionBMassJPsi->Fill(mass); }
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose){ forResolutionCMassJPsi->Fill(mass); }
-
-	}
+	if(mass>60. && mass<120.)
+  {
+    if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && passIsoLoose){ forResolutionAMassZ->Fill(mass); }
+    if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose){ forResolutionBMassZ->Fill(mass); }
+    if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose){ forResolutionCMassZ->Fill(mass); }
+  }
 
 
-        if (mass > 0.2 && mass < 12.) {    
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && passIsoLoose) { 
-                fullMassCatA->Fill(mass); 
-                massCatA = mass;
-            }
-        }
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose) { 
-                fullMassCatB->Fill(mass); 
-                massCatB = mass;
-            }
+	if(mass>2.6 && mass<3.5)
+  {
+    if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && 		  passIsoLoose){ forResolutionAMassJPsi->Fill(mass); }
+    if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose){ forResolutionBMassJPsi->Fill(mass); }
+    if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose){ forResolutionCMassJPsi->Fill(mass); }
+  }
 
-            if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose) { 
-                fullMassCatC->Fill(mass); 
-                massCatC = mass;
-            }
-
-        float frac2 = 0.2;
-        for (int i = 0; i < 5; i++) {
-            if (i >= 2) {
-                frac = 0.1;
-            }
-
-            if (mass > masses[i]*(1.-frac) && mass < masses[i]*(1.+frac)) {
-                if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && passIsoLoose) {
-                    hist_massCatA[i]->Fill(mass);
-                }
-
-                if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose) {
-                    hist_massCatB[i]->Fill(mass);
-                }
-
-                if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose) {
-                    hist_massCatC[i]->Fill(mass);
-                }
-            }
-        }
-
-    outtree->Fill();
+  if (mass > 0.2 && mass < 12.)
+  {
+    if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && passIsoLoose)
+    {
+      fullMassCatA->Fill(mass);
+      category = 0;
     }
-   }
+  }
 
-    file.close();
+  if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose)
+  {
+    fullMassCatB->Fill(mass);
+    category = 1;
+  }
 
-   outtree->Write();
+  if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose)
+  {
+    fullMassCatC->Fill(mass);
+    category = 2;
+  }
 
-   forLimitMassZ->Write();
-   forResolutionAMassZ->Write();
-   forResolutionBMassZ->Write();
-   forResolutionCMassZ->Write();
-   forResolutionAMassJPsi->Write();
-   forResolutionBMassJPsi->Write();
-   forResolutionCMassJPsi->Write();
+  float frac2 = 0.2;
+  for (int i = 0; i < 5; i++)
+  {
+    if (i >= 2)
+    {
+      frac = 0.1;
+    }
+
+    if (mass > masses[i]*(1.-frac) && mass < masses[i]*(1.+frac))
+    {
+      if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta<0.9 && passIsoLoose)
+      {
+        hist_massCatA[i]->Fill(mass);
+      }
+      if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=0.9 && maxEta<1.2 && passIsoLoose)
+      {
+        hist_massCatB[i]->Fill(mass);
+      }
+      if(m1ch*m2ch<0. && passPVconstraint && m1pt>slidePt1 && m2pt>slidePt2 && maxEta>=1.2 && maxEta<2.4 && passIsoLoose)
+      {
+        hist_massCatC[i]->Fill(mass);
+      }
+    }
+  }
+
+  outtree->Fill();
+}
+file.close();
+outtree->Write();
+forLimitMassZ->Write();
+forResolutionAMassZ->Write();
+forResolutionBMassZ->Write();
+forResolutionCMassZ->Write();
+forResolutionAMassJPsi->Write();
+forResolutionBMassJPsi->Write();
+forResolutionCMassJPsi->Write();
 
    fullMassCatA->Write();
    fullMassCatB->Write();
@@ -362,9 +398,6 @@ THE LOW MASS TRIGGER TO MEASURE FAKE: ID 18 - 20 [ONLY IN FROM RUN 305405]
    }
 
     outfile->Close();
-    }
 
-    else {
-        cout << "Unable to open file." << endl;
-    }
+
 }
