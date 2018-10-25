@@ -1,1 +1,64 @@
 # DarkPhotonAnalysis
+To run:
+```
+make getLimits
+./getLimits --inputFileSig=<input signal ROOT file path> --inputFileBkg=<input bkg ROOT file path> \
+  --treeName=tree --outputFile=<output ROOT file name> --datacard=<datacard file path> \
+  --mzd=<mzd [GeV]> --tau0=<tau0 [mm]> --binNumber=<binNumber> --vtxCut=<vertex cut [cm]> \
+  --sigFit=<signal fit PDF> --bkgFit=<bkg fit PDF> > output.txt
+```
+
+Example:
+```
+make getLimits
+./getLimits --inputFileSig=../trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_100mm_full.root \
+  --inputFileBkg=../trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_1000mm_full.root \
+  --treeName=tree --outputFile=combine10.root --datacard=datacards/combineDatacard10.txt \
+  --mzd=20 --tau0=100 --binNumber=1 --vtxCut=10 \
+  --sigFit=bw --bkgFit=expo > output.txt
+```
+
+This creates two new directories `output` and `datacards` in the current directory. `output` contains plots of the background and signal fits (`bkgFit_bin1_cut_10cm.png` and `sigFit_bin1_cut_10cm.png`), and the toy data thrown from the fitted PDF (`dataToy_bin1_cut_10cm.png`). `datacards` contains the combine datacard (`combineDatacard10.txt`) and the ROOT file with the RooWorkspace for the combine input (`combine10.root`). 
+
+The datacard can then be put into combine with 
+```
+combine -M Asymptotic datacards/combineDatacard10.txt --minimizerStrategy=1 --X-rtd ADDNLL_RECURSIVE=0 > limit.txt
+```
+
+To get the correct normalization for the signal shape, the number of signal events without any cut must be changed for each lifetime. This is done by changing the `N_sigNoCut` variable here:
+https://github.com/shufay/DarkPhotonAnalysis/blob/master/src/fitDarkphoton.cc#L752.
+
+The signal yield without any cut should also be changed for the different background fits used. This is done by changing the `sigYieldNoCut` variable here: 
+https://github.com/shufay/DarkPhotonAnalysis/blob/master/src/fitDarkphoton.cc#L751.
+
+The implemented PDFs for fitting could be specified with the following:
+   * Exponential ![equation](http://www.sciweavers.org/tex2img.php?eq=Ne%5E%7B%5Clambda%20x%7D%0A&bc=White&fc=Black&im=jpg&fs=12&ff=modern&edit=0) — expo 
+   * Double Exponential ![equation](http://www.sciweavers.org/tex2img.php?eq=N%5Bfe%5E%7B%5Clambda_1%20x%7D%20%2B%20%281-f%29e%5E%7B%5Clambda_2%20x%7D%5D%0A&bc=White&fc=Black&im=jpg&fs=12&ff=modern&edit=0) — doubleExpo
+   * Power ![equation](http://www.sciweavers.org/tex2img.php?eq=Nx%5E%5Calpha%0A&bc=White&fc=Black&im=jpg&fs=12&ff=modern&edit=0) — pow
+   * Double Power ![equation](http://www.sciweavers.org/tex2img.php?eq=N%5Bfx%5E%7B%5Calpha_1%7D%20%2B%20%281-f%29x%5E%7B%5Calpha_2%7D%5D%0A%0A&bc=White&fc=Black&im=jpg&fs=12&ff=modern&edit=0) — doublePow
+   * 2nd Order Bernstein Polynomial — bernPoly2
+   * 3rd Order Bernstein Polynomial — bernPoly3
+   * 2nd Order Chebychev Polynomial — chebPoly2
+   
+## Input Files
+### Signal
+#### tau<sub>0</sub> = 10e-10 mm
+`/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_10e-10mm_full.root`
+
+#### tau<sub>0</sub> = 1 mm
+`/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_1mm_full.root`
+
+#### tau<sub>0</sub> = 10 mm
+`/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_10mm_full.root`
+
+#### tau<sub>0</sub> = 50 mm
+`/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_50mm_full.root`
+
+#### tau<sub>0</sub> = 100 mm
+`/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_100mm_full.root`
+
+#### tau<sub>0</sub> = 1000 mm
+`/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2-darkphoton_mzd_20_tau0_1000mm_full.root`
+
+### Background
+`/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2_2017C_primaryVtx_sub_full.root`
