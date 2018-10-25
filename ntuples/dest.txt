@@ -1,0 +1,9 @@
+NTuples Stored Here:
+/eos/cms/store/group/phys_exotica/darkPhoton/jakob/2018/ScoutingCaloMuon/*/*/0000/scout_*.root
+/eos/cms/store/group/phys_exotica/darkPhoton/jakob/2017/ScoutingCaloMuon/*/*/0000/scout_*.root
+
+2017 NTuples
+/eos/cms/store/group/phys_exotica/darkPhoton/jakob/2017/ScoutingCaloMuon/crab_20180903_075953/180903_060013/0000
+/eos/cms/store/group/phys_exotica/darkPhoton/jakob/2017/ScoutingCaloMuon/crab_20180903_080016/180903_060022/0000
+/eos/cms/store/group/phys_exotica/darkPhoton/jakob/2017/ScoutingCaloMuon/crab_20180903_080024/180903_060030/0000
+/eos/cms/store/group/phys_exotica/darkPhoton/jakob/2017/ScoutingCaloMuon/crab_20180903_080033/180903_060039/0000
