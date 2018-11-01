@@ -6,9 +6,9 @@
 #include <TCanvas.h>
 #include <TLorentzVector.h>
 
-void tree::Loop()
+void tree::Loop(const char* outfilename="test.txt")
 {
-  TFile* outfile = new TFile("test.root", "RECREATE");
+  TFile* outfile = new TFile(outfilename, "RECREATE");
   TTree* outtree = new TTree("tree", "tree");
   bool isMC = false;
 

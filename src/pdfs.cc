@@ -5,6 +5,7 @@
 #include <RooWorkspace.h>
 #include <RooExponential.h>
 #include <RooBreitWigner.h>
+#include <RooCBShape.h>
 #include <RooGenericPdf.h>
 #include <RooBernstein.h>
 #include <RooChebychev.h>
@@ -16,10 +17,69 @@
 // LOCAL INCLUDES
 #include "pdfs.h"
 
+TString MakeCB(TString tag, double mass, RooRealVar &mzd, RooWorkspace &w) {
+    RooRealVar *mu = new RooRealVar(tag+"_CB_mu", "#mu_{CB}", mass, "");
+    RooRealVar *sigma = new RooRealVar(tag+"_CB_sigma", "#sigma_{CB}", 0.01, "");
+    RooRealVar *alpha = new RooRealVar(tag+"_CB_alpha", "#alpha", 1.5, "");
+    RooRealVar *n = new RooRealVar(tag+"_CB_n", "#n", 1.0, "");
+
+    RooRealVar *Ns = new RooRealVar(tag+"_Ns", "N_{s}", 1, "events");
+    
+    RooCBShape *cb = new RooCBShape(tag+"_NE", "CB", mzd, *mu, *sigma, *alpha, *n);
+
+    RooAddPdf *ext_cb = new RooAddPdf(tag, "ext_cb", RooArgList(*cb), RooArgList(*Ns));
+
+    Ns->setConstant(kFALSE);
+    mu->setConstant(kFALSE);
+    sigma->setConstant(kFALSE);
+    alpha->setConstant(kFALSE);
+    n->setConstant(kFALSE);
+    n->setRange(0, 1000);
+
+    w.import(*ext_cb);
+
+    return tag;
+}
+
+TString MakeDoubleCB(TString tag, double mass, RooRealVar &mzd, RooWorkspace &w) {
+    RooRealVar *mu1 = new RooRealVar(tag+"_CB_mu1", "#mu_{1}", mass, "");
+    RooRealVar *sigma1 = new RooRealVar(tag+"_CB_sigma1", "#sigma_{1}", 1.1, "");
+    RooRealVar *mu2 = new RooRealVar(tag+"_CB_mu2", "#mu_{2}", mass, "");
+    RooRealVar *sigma2 = new RooRealVar(tag+"_CB_sigma2", "#sigma_{2}", 1.1, "");
+    RooRealVar *alpha1 = new RooRealVar(tag+"_CB_alpha", "#alpha_{1}", 1.5, "");
+    RooRealVar *n1 = new RooRealVar(tag+"_CB_n", "#n_{1}", 1.0, "");
+    RooRealVar *alpha2 = new RooRealVar(tag+"_CB_alpha", "#alpha_{2}", 1.5, "");
+    RooRealVar *n2 = new RooRealVar(tag+"_CB_n", "#n_{2}", 1.0, "");
+
+    RooRealVar *Ns = new RooRealVar(tag+"_Ns", "N_{s}", 1, "events");
+    RooRealVar *frac = new RooRealVar(tag+"_frac", "frac", 0.3, 0., 1., "");
+
+    RooCBShape *cb1 = new RooCBShape(tag+"_cb1", "cb1", mzd, *mu1, *sigma1, *alpha1, *n1);
+    RooCBShape *cb2 = new RooCBShape(tag+"_cb2", "cb2", mzd, *mu2, *sigma2, *alpha2, *n2);
+    RooAddPdf *dcb = new RooAddPdf(tag+"_NE", "dcb", RooArgList(*cb1, *cb2), *frac);
+    RooAddPdf *ext_dcb = new RooAddPdf(tag, "ext_dcb", RooArgList(*dcb), RooArgList(*Ns));
+    
+    Ns->setConstant(kFALSE);
+    mu1->setConstant(kFALSE);
+    sigma1->setConstant(kFALSE);
+    mu2->setConstant(kFALSE);
+    sigma2->setConstant(kFALSE);
+    alpha1->setConstant(kFALSE);
+    n1->setConstant(kFALSE);
+    n1->setRange(0, 1000);
+    alpha2->setConstant(kFALSE);
+    n2->setConstant(kFALSE);
+    n2->setRange(0, 1000);
+
+    w.import(*ext_dcb);
+
+    return tag;
+}
+
 TString MakeBreitWigner(TString tag, double mass, double lifetime, RooRealVar &mzd, RooWorkspace &w) {
         double decay_width = 1./lifetime;
         RooRealVar *mean = new RooRealVar(tag+"_meanBW", "mean", mass, "");
-        RooRealVar *width = new RooRealVar(tag+"_widthBW", "width", 1., "");
+        RooRealVar *width = new RooRealVar(tag+"_widthBW", "width", 0.01, 0., 1.0, "");
 
         RooRealVar *Ns = new RooRealVar(tag+"_Ns", "N_{s}", 1, "events");
 

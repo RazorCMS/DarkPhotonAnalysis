@@ -32,3 +32,11 @@
 *.app
 *.*~
 *.*#
+*.sh
+.*
+
+# Misc
+*.txt
+*.png
+*.root
+skimmed_out

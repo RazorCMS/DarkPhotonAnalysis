@@ -19,33 +19,39 @@ int main(int argc, char* argv[]) {
     // Parse command line inputs
     std::string inputFile = ParseCommandLine( argc, argv, "-inputFile=" );
     if (  inputFile == "" ) {
-        std::cerr << "[ERROR]: please provide an input file using --inputFile=<path_to_file>" << std::endl;
-        return -1;
+        std::cerr << "[INFO]: No input file provided. Using default /eos/user/u/ufay/2017Data_Jakob/scout_skimmed/scout_skimmed_errored_0.root." << std::endl;
+        inputFile = "/eos/user/u/ufay/2017Data_Jakob/scout_skimmed/scout_skimmed_errored_0.root";
     }
 
     std::string sigFit = ParseCommandLine ( argc, argv, "-sigFit=" );
     if ( sigFit == "" ) {
-        std::cerr << "[INFO]: sigFit has not been set, using default sigFit = bw" << std::endl;
+//        std::cerr << "[INFO]: sigFit has not been set, using default sigFit = bw" << std::endl;
         sigFit = "bw";
     }
 
     std::string bkgFit = ParseCommandLine( argc, argv, "-bkgFit=" );
     if (bkgFit == "") {
-        std::cerr << "[INFO]: bkgFit has not been set, using default bkgFit = expo" << std::endl;
-        sigFit = "expo";
+//        std::cerr << "[INFO]: bkgFit has not been set, using default bkgFit = expo" << std::endl;
+        bkgFit = "expo";
     }
 
+    /*
     std::cout << std::endl;
     std::cout << "[INFO]: sigFit: " << sigFit << std::endl;
     std::cout << "[INFO]: bkgFit: " << bkgFit << std::endl;
     std::cout << std::endl;
+    */
 
     // Get files
     TFile *file = new TFile(inputFile.c_str(), "read");
     TTree *tree = (TTree*) file->Get("tree"); 
+    
+    // Categories
+    TString cut = "category==0";
 
-    // Do fit
-    SplusB_fit(tree, sigFit, bkgFit);
+    // Do fit for Category A
+    // For now, sigFit and bkgFit input have no influence in how fit is done
+    SplusB_fit(tree->CopyTree(cut), sigFit, bkgFit);
 }       
     
     

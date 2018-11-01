@@ -8,6 +8,8 @@
 #include <RooWorkspace.h>
 #include <RooRealVar.h>
 
+TString MakeDoubleCB(TString tag, double mass, RooRealVar &mzd, RooWorkspace &w);
+TString MakeCB(TString tag, double mass, RooRealVar &mzd, RooWorkspace &w);
 TString MakeBreitWigner(TString tag, double mass, double lifetime, RooRealVar &mzd, RooWorkspace &w);
 TString MakeExpo(TString tag, RooRealVar &mzd, RooWorkspace &w);
 TString MakeDoubleExpo(TString tag, RooRealVar &mzd, RooWorkspace &w);

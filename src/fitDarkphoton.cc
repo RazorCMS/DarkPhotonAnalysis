@@ -499,102 +499,119 @@ bernPoly3Fit_output SidebandBernPoly3Fit(RooDataSet *data, RooRealVar &mzd, RooW
 }
 
 void SplusB_fit(TTree* tree, std::string sig_fit, std::string bkg_fit) {
-    system("mkdir -p SplusB_fits");
+//    system("mkdir -p SplusB_fits");
 
     // Category A
     // ~0.547 GeV
     double mass1 = 0.55;
-    // 0.8*mass
-    double mass1_lower = 0.44;
-    // 1.2*mass
-    double mass1_upper = 0.66;
-
     // ~0.78 GeV
     double mass2 = 0.78;
-    // 0.8*mass
-    double mass2_lower = 0.63;
-    // 1.2*mass
-    double mass2_upper = 0.94;
-
     // ~1.02 GeV
     double mass3 = 1.02;
-    // 0.9*mass
-    double mass3_lower = 0.92;
-    // 1.1*mass
-    double mass3_upper = 1.12;
-
-    // ~3.1 GeV
+    // ~3.1 GeV - JPsi
     double mass4 = 3.1;
-    // 0.9*mass
-    double mass4_lower = 2.79;
-    // 1.1*mass
-    double mass4_upper = 3.41;
-
     // ~3.68 GeV
     double mass5 = 3.68;
-    // 0.9*mass
-    double mass5_lower = 3.31;
-    // 1.1*mass
-    double mass5_upper = 4.05;
 
     // Define Roo variables for different masses
-    RooRealVar mzd("mass", "m_{#mu#mu}", 0., 12., "GeV");
-    mzd.setRange("m1", mass1_lower, mass1_upper);
-    mzd.setRange("m2", mass2_lower, mass2_upper);
-    mzd.setRange("m3", mass3_lower, mass3_upper);
-    mzd.setRange("m4", mass4_lower, mass4_upper);
-    mzd.setRange("m5", mass5_lower, mass5_upper);
-
-    // Dataset
-    tree->GetBranch("massCatA");
-    RooDataSet *CatA_mass = new RooDataSet("CatA_mass", "", RooArgSet(mzd), RooFit::Import(*tree));
-    RooDataSet *CatA_m1 =  (RooDataSet*) CatA_mass->reduce(RooFit::Name("mass1"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("m1"));;
-    RooDataSet *CatA_m2 =  (RooDataSet*) CatA_mass->reduce(RooFit::Name("mass2"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("m2"));;
-    RooDataSet *CatA_m3 =  (RooDataSet*) CatA_mass->reduce(RooFit::Name("mass3"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("m3"));;
-    RooDataSet *CatA_m4 =  (RooDataSet*) CatA_mass->reduce(RooFit::Name("mass4"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("m4"));;
-    RooDataSet *CatA_m5 =  (RooDataSet*) CatA_mass->reduce(RooFit::Name("mass5"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("m5"));;
-
     double masses[] = {mass1, mass2, mass3, mass4, mass5};
-    const char* roo_masses[] = {"m1", "m2", "m3", "m4", "m5"};
-    RooDataSet *CatA_m[] = {CatA_m1, CatA_m2, CatA_m3, CatA_m4, CatA_m5};
+    RooRealVar mzd("mass", "m_{#mu#mu}", 0., 10., "GeV");
+    mzd.setMin(0.);
+    mzd.setMax(10.);
+/*
+    for (int i = 0; i < 5; i++) {
+        double k = 0.4;
+
+            if (i > 1) {
+                k = 0.4;
+            }
+        
+        double mass_lower = masses[i]*(1-k);
+
+        double mass_upper = masses[i]*(1+k);
+        }
+*/
+        
+   
+    // Test fitting JPsi first
+    mzd.setRange(Form("mzd4"), mass4*0.6, 3.5);
+    
+    // Dataset
+    tree->GetBranch("mass");
+    RooDataSet *treemass = new RooDataSet("mass", "", RooArgSet(mzd), RooFit::Import(*tree));
+
+    // mass around JPsi
+    RooDataSet *massCut4 = (RooDataSet*) treemass->reduce(RooFit::Name("massCut4"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("m4"));
+
+//    const char* roo_masses[] = {"m1", "m2", "m3", "m4", "m5"};
 
     TCanvas *c = new TCanvas("c", "c", 800, 700);
     RooWorkspace *w = new RooWorkspace("LowMassFits", "");
-
-    for (int i = 0; i < 5; i++) {
-        TString tagsig_bw = TString("CatA_BWsig" + std::to_string(i+1));
-        TString tagbkg_dexpo = TString("CatA_DExpo_bkg" + std::to_string(i+1));
-        TString sb_name = TString("CatA_sb" + std::to_string(i+1));
-        TString fitRange = TString("m" + std::to_string(i+1));
-
+/*
+    for (int i = 0; i < 1; i++) {
+        TString fitRange = Form("mzd%d", i+1);
+        std::cout << "Fit Range: " << std::endl;
+*/
+        // Some index for naming
+        int i = 3;
         // Define signal and background shape
-        TString bwfit = MakeBreitWigner(tagsig_bw, masses[i], 0.0001, mzd, *w);
-        TString expofit = MakeDoubleExpo(tagbkg_dexpo, mzd, *w);
-        RooRealVar nsig("nsig", "", CatA_m[i]->numEntries());
-        RooRealVar nbkg("nbkg", "", CatA_m[i]->numEntries());
+        TString bwfit = MakeBreitWigner(Form("BWsig%d", i+1), mass4, 0.001, mzd, *w);
+        TString cbfit = MakeCB(Form("CBsig%d", i+1), mass4, mzd, *w);
+        TString dexpofit = MakeDoubleExpo(Form("DExpo_bkg%d", i+1), mzd, *w);
+        TString expofit = MakeExpo(Form("Expo_bkg%d", i+1), mzd, *w);
+        TString bernpoly2fit = MakeBernPoly2(Form("BernPoly2_bkg%d", i+1), mzd, *w);
+
+        RooRealVar nsig("nsig", "", massCut4->numEntries());
+        RooRealVar nbkg("nbkg", "", massCut4->numEntries());
         nsig.setConstant(kFALSE);
         nbkg.setConstant(kFALSE);
 
         // Define S+B model
-        RooAddPdf *sb = new RooAddPdf("sb", "sb", RooArgSet(*w->pdf(bwfit), *w->pdf(expofit)), RooArgSet(nsig, nbkg));
-    
+        // BW + Expo
+        RooAddPdf *sb1 = new RooAddPdf("sb1", "sb1", RooArgSet(*w->pdf(bwfit), *w->pdf(expofit)), RooArgSet(nsig, nbkg));
+        // BW + Double Expo
+        RooAddPdf *sb2 = new RooAddPdf("sb2", "sb2", RooArgSet(*w->pdf(bwfit), *w->pdf(dexpofit)), RooArgSet(nsig, nbkg));
+        // CB + Expo
+        RooAddPdf *sb3 = new RooAddPdf("sb3", "sb3", RooArgSet(*w->pdf(cbfit), *w->pdf(expofit)), RooArgSet(nsig, nbkg));
+        // CB + Bernstein Poly Order 2
+        RooAddPdf *sb4 = new RooAddPdf("sb4", "sb4", RooArgSet(*w->pdf(cbfit), *w->pdf(bernpoly2fit)), RooArgSet(nsig, nbkg));
+/*
         // Do S+B fit
-        sb->fitTo(*CatA_m[i], RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(fitRange));
- 
+        sb1->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(fitRange));
+        sb2->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(fitRange));
+        sb3->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(fitRange));
+*/
         // Plot S+B fit   
-        RooPlot *frame = mzd.frame();
-        CatA_m[i]->plotOn(frame, RooFit::Range(fitRange), RooFit::NormRange(fitRange));
-        sb->plotOn(frame, RooFit::Range(fitRange), RooFit::NormRange(fitRange));
-        frame->SetName(sb_name);
+        RooPlot *frame = mzd.frame(mass4*0.6, 3.5, 100);
+        massCut4->plotOn(frame);
+
+        sb1->plotOn(frame, RooFit::Name("sb1"), RooFit::Range("m4"));
+        sb2->plotOn(frame, RooFit::Name("sb2"), RooFit::Range("m4"), RooFit::LineColor(kGreen));
+        sb3->plotOn(frame, RooFit::Name("sb3"), RooFit::Range("m4"), RooFit::LineColor(kRed));
+        sb4->plotOn(frame, RooFit::Name("sb4"), RooFit::Range("m4"), RooFit::LineColor(kGray));
+
         frame->Draw();
         frame->SetTitle("");
-        c->Update();
-        c->SaveAs(sb_name+".png");
-        w->import(*sb);
-        w->import(*frame);
-    }
 
+        TLegend *leg = new TLegend(0.1,0.7,0.4,0.9);
+        leg->AddEntry(frame->findObject("sb1"), "bw + expo");
+        leg->AddEntry(frame->findObject("sb2"), "bw + dexpo");
+        leg->AddEntry(frame->findObject("sb3"), "cb + expo");
+        leg->AddEntry(frame->findObject("sb4"), "cb + bernpoly2");
+        leg->Draw();
+
+        c->SetLogy();
+        c->Update();
+        c->SaveAs(Form("sb.png"));
+/*
+        w->import(*sb2);
+        w->import(*frame);
+
+    }
+    
+    TFile *outfile = new TFile("outfile.root", "recreate");
     w->Write("LowMassFits");
+*/
 }
 
 RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* treeSignal, TTree* treeData, std::string vtxCut, double mass, double lifetime, TString binNumber, TString combineRootFileName, TString datacardName) {
