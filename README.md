@@ -1,6 +1,6 @@
 # DarkPhotonAnalysis
 
-## Displaced Low Mass Limits
+## Prompt Low Mass
 ### Getting the Skimmed Ntuples
 To run:
 ```
@@ -38,6 +38,7 @@ The executable to do the fitting is `./lowMass_prompt`. There are two ways to ru
     ```
     In this case `scout_skimmed.txt` is a text file containing the LFN of the skimmed Ntuples. 
 
+## Displaced Low Mass Limits
 To run:
 ```
 make getLimits
