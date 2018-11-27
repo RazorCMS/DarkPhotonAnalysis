@@ -40,3 +40,7 @@
 *.png
 *.root
 skimmed_out
+
+# Don't ignore
+!submitBatchJobs.sh
+!skimJobs.sh
