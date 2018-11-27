@@ -1,4 +1,43 @@
 # DarkPhotonAnalysis
+
+## Displaced Low Mass Limits
+### Getting the Skimmed Ntuples
+To run:
+```
+make 
+./create_reduced_tree txt_file outfilepath
+```
+
+`txt_file` is a text file containing the LFN of the Ntuples. In the directory `ntuples/split` are text files containing ~30 Ntuples each. So for example, we can do:
+```
+./create_reduced_tree ntuples/split/xaa scout_skimmed_1.root
+```
+to get a skimmed Ntuple from the Ntuples in file `xaa`.
+
+The files `submitBatchJobs.sh` and `skimJobs.sh` are used to submit batch jobs to do the skimming. `submitBatchJobs.sh` takes the path to the directory containing the text files as a command-line argument. 
+
+You can run it with:
+```
+. submitBatchJobs.sh ntuples/split
+```
+
+### Fitting
+The executable to do the fitting is `./lowMass_prompt`. There are two ways to run it:
+
+1. Running on a single skimmed Ntuple
+    ```
+    make
+    ./lowMass_prompt [-inputFiles=inputfile]
+    ```
+    If `-inputFiles` is not specified, the default skimmed Ntuple used is `/eos/user/u/ufay/2017Data_Jakob/scout_skimmed/scout_skimmed_errored_0.root`.
+
+2. Running on multiple skimmed Ntuples
+    ```
+    make
+    ./lowMass_prompt -tchain -inputFiles=scout_skimmed.txt
+    ```
+    In this case `scout_skimmed.txt` is a text file containing the LFN of the skimmed Ntuples. 
+
 To run:
 ```
 make getLimits
