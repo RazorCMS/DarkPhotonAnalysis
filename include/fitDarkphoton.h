@@ -1,5 +1,5 @@
-#ifndef fitDarkphoton_v3_H
-#define fitDarkphoton_v3_H 1
+#ifndef fitDarkphoton_H
+#define fitDarkphoton_H 1
 
 //C++ INCLUDES
 
@@ -8,6 +8,7 @@
 #include <TTree.h>
 #include <TString.h>
 #include <TROOT.h>
+#include <TChain.h>
 
 //ROOFIT INCLUDES
 #include <RooWorkspace.h>
@@ -90,7 +91,9 @@ struct bernPoly3Fit_output {
         int npoints;
 };
 
-void SplusB_fit(TTree* tree, std::string sig_fit, std::string bkg_fit);
+//int SplusB_fit(TTree* tree, bool testS=false, bool testB=false);
+int SplusB_fit_test(TTree* tree);
+
 
 bwFit_output BreitWignerFit(double mass, double lifetime, RooDataSet *data, RooRealVar &mzd, RooWorkspace &w);
 

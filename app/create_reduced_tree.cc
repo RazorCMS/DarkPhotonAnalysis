@@ -13,7 +13,7 @@
 int main( int argc, char* argv[])
 {
     if (argc < 3) {
-        std::cout << "usage: " << argv[0] << " txt_file outfilename" << std::endl;
+        std::cout << "usage: " << argv[0] << " txt_file outfilepath" << std::endl;
         exit(1);
     }
     
