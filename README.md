@@ -12,9 +12,9 @@ make
 ```
 ./create_reduced_tree ntuples/split/xaa scout_skimmed_1.root
 ```
-to get a skimmed Ntuple from the Ntuples in file `xaa`.
+to get a skimmed Ntuple `scout_skimmed_1.root` from the Ntuples in file `xaa`.
 
-The files `submitBatchJobs.sh` and `skimJobs.sh` are used to submit batch jobs to do the skimming. `submitBatchJobs.sh` takes the path to the directory containing the text files as a command-line argument. 
+The files `submitBatchJobs.sh` and `skimJobs.sh` are used to submit batch jobs to do the skimming. `submitBatchJobs.sh` takes the path to the directory containing the text files as a command-line argument. `skimJobs.sh` is the bash script submitted to batch.
 
 You can run it with:
 ```
@@ -37,6 +37,7 @@ The executable to do the fitting is `./lowMass_prompt`. There are two ways to ru
     ./lowMass_prompt -tchain -inputFiles=scout_skimmed.txt
     ```
     In this case `scout_skimmed.txt` is a text file containing the LFN of the skimmed Ntuples. 
+
 
 ## Displaced Low Mass Limits
 To run:
