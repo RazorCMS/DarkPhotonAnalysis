@@ -15,7 +15,7 @@ TARGET3 = create_reduced_tree
 
 SRC = app/getLimits.cc src/fitDarkphoton.cc src/pdfs.cc $(TOOLS)/src/CommandLineInput.cc
 SRC2 = app/lowMass_prompt.cc src/fitDarkphoton.cc src/pdfs.cc $(TOOLS)/src/CommandLineInput.cc src/dataTree.cc
-SRC3 = app/create_reduced_tree.cc src/tree.cc $(TOOLS)/src/CommandLineInput.cc $(TOOLS)/src/Filename.cc
+SRC3 = app/create_reduced_tree.cc src/tree.cc $(TOOLS)/src/CommandLineInput.cc
 
 OBJ = $(SRC:.cc=.o)
 OBJ2 = $(SRC2:.cc=.o)
