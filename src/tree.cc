@@ -128,7 +128,7 @@ void tree::Loop(const char* outfilename="test.txt")
     m2ch   = muoncharge->at(idx2);
     Run    = run;
     LumSec = lumSec;
-
+    if(m1ch*m2ch!=-1)continue;
     mass   = mm.M();
     if( mass > 10. ) continue;
 
