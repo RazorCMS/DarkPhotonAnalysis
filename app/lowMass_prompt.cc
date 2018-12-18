@@ -33,8 +33,13 @@ int main(int argc, char* argv[]) {
     }
 
     else if (inputFiles == "") {
-        std::cerr << "[INFO]: No input file provided. Using default /eos/user/u/ufay/2017Data_Jakob/scout_skimmed/scout_skimmed_errored_0.root." << std::endl;
-        inputFiles = "/eos/user/u/ufay/2017Data_Jakob/scout_skimmed/scout_skimmed_errored_0.root";
+        inputFiles = "/eos/user/u/ufay/2017Data_Jakob/scout_skimmed_OS/2Dec2018xcg_job0_scout_skimmed.root";
+//        inputFiles = "/afs/cern.ch/work/u/ufay/public/Run2017_data/scout_skimmed_errored_0.root";
+        std::cerr << "[INFO]: No input file provided. Using default " << inputFiles << std::endl;
+    }
+
+    else {
+        std::cout << "Input File: " << inputFiles << std::endl;
     }
 
     TTree *tree;
