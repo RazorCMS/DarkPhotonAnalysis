@@ -40,6 +40,11 @@
 *.png
 *.root
 skimmed_out
+lowMass_prompt
+lowMass_prompt_test
+create_reduced_tree
+create_subTree
+getLimits
 
 # Don't ignore
 !submitBatchJobs.sh
