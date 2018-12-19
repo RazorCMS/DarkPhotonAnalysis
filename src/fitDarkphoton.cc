@@ -1074,7 +1074,7 @@ int SplusB_fit_test(TTree* tree) {
      */ 
     std::ofstream fit_file;
     fit_file.open("fit_JPsi_output.txt");
-#if 0
+
     if (fit_file.is_open()) {
 
         fit_file << sb7res << std::endl;
@@ -1104,7 +1104,7 @@ int SplusB_fit_test(TTree* tree) {
     else {
         std::cerr << "Unable to open fit output file." << std::endl;
     }
-#endif
+
     /*
      * Plot B fit
      */
@@ -1117,7 +1117,7 @@ int SplusB_fit_test(TTree* tree) {
 //    w->pdf(bernpoly2fit_NE)->plotOn(frameB, RooFit::Name("bernpoly2fit_NE"), RooFit::LineColor(kGreen));
 //    w->pdf(bernpoly3fit)->plotOn(frameB, RooFit::Name("bernpoly3fit"), RooFit::LineColor(kGray));
 //    w->pdf(bernpoly3fit_NE)->plotOn(frameB, RooFit::Name("bernpoly3fit_NE"), RooFit::LineColor(kGray));
-//    w->pdf(bernpoly4fit_NE)->plotOn(frameB, RooFit::Name("bernpoly4fit_NE"), RooFit::LineColor(kBlue));
+//    W->PDF(Bernpoly4fit_NE)->plotOn(frameB, RooFit::Name("bernpoly4fit_NE"), RooFit::LineColor(kBlue));
 //    w->pdf(bernpoly5fit_NE)->plotOn(frameB, RooFit::Name("bernpoly5fit_NE"), RooFit::LineColor(kRed));
     frameB->Draw();
     frameB->SetTitle("");

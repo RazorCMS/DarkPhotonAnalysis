@@ -33,8 +33,9 @@ int main(int argc, char* argv[]) {
     }
 
     else if (inputFiles == "") {
-        inputFiles = "/eos/user/u/ufay/2017Data_Jakob/scout_skimmed_OS/2Dec2018xcg_job0_scout_skimmed.root";
+//        inputFiles = "/eos/user/u/ufay/2017Data_Jakob/scout_skimmed_OS/2Dec2018xcg_job0_scout_skimmed.root";
 //        inputFiles = "/afs/cern.ch/work/u/ufay/public/Run2017_data/scout_skimmed_errored_0.root";
+	inputFiles = "/mnt/hadoop/store/user/idutta/DarkPhoton/Samples/xcg2Dec2018/2Dec2018xcg_job0_scout_skimmed.root";
         std::cerr << "[INFO]: No input file provided. Using default " << inputFiles << std::endl;
     }
 
