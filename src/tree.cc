@@ -6,7 +6,7 @@
 #include <TCanvas.h>
 #include <TLorentzVector.h>
 
-void tree::Loop(const char* outfilename="test.txt", float massMin=0., float massMax=10.)
+void tree::Loop(const char* outfilename="test.txt")
 {
   TFile* outfile = new TFile(outfilename, "RECREATE");
   TTree* outtree = new TTree("tree", "tree");
@@ -130,7 +130,7 @@ void tree::Loop(const char* outfilename="test.txt", float massMin=0., float mass
     LumSec = lumSec;
 
     mass   = mm.M();
-    if( mass > massMax || mass < massMin ) continue;
+    if( mass > 10.) continue;
 
     //nvtx = nverts;
     bool passPVconstraint = false;
