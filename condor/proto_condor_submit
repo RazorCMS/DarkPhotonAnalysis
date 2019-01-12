@@ -1,0 +1,13 @@
+executable=/data/idutta/CMSSW_9_4_9/src/DarkPhotonAnalysis/condor/run_myprog.sh
+universe=vanilla
+Arguments=FILELIST ROOTOUT OUTDIR
+Input =
+Output = condor_output/condor_logs/condor_JOBNAME.out
+Error  = condor_output/condor_logs/condor_JOBNAME.err
+Log    = condor_output/condor_logs/condor_JOBNAME.log
+Requirements=TARGET.OpSysAndVer=="CentOS7"
+notification=never
+should_transfer_files=YES
+use_x509userproxy = true
+when_to_transfer_output = ON_EXIT
+queue
