@@ -130,7 +130,7 @@ void tree::Loop(const char* outfilename="test.txt")
     LumSec = lumSec;
     if(m1ch*m2ch!=-1)continue;
     mass   = mm.M();
-    if( mass > 10. ) continue;
+    if( mass > 10.) continue;
 
     //nvtx = nverts;
     bool passPVconstraint = false;
