@@ -211,7 +211,7 @@ TString MakeExpo_NE(TString tag, RooRealVar &mzd, RooWorkspace &w) {
 };
 
 TString MakeDoubleExpo(bool extended, TString tag, RooRealVar &mzd, RooWorkspace &w) {
-	RooRealVar* lambda1 = new RooRealVar(tag + "_lambdaExpo1", "#lambda_{1}", 0.15, -0.5, 0.5,  "");
+	RooRealVar* lambda1 = new RooRealVar(tag + "_lambdaExpo1", "#lambda_{1}", 0.15, "");
 	RooRealVar* lambda2 = new RooRealVar(tag + "_lambdaExpo2", "#lambda_{2}", 0.1, "");
 
 
@@ -252,7 +252,7 @@ TString MakeDoubleExpo(bool extended, TString tag, RooRealVar &mzd, RooWorkspace
 }
 
 TString MakeDoubleExpo_NE(TString tag, RooRealVar &mzd, RooWorkspace &w) {
-	RooRealVar* lambda1 = new RooRealVar(tag + "_lambdaExpo1", "#lambda_{1}", 0.15, -0.5, 0.5,  "");
+	RooRealVar* lambda1 = new RooRealVar(tag + "_lambdaExpo1", "#lambda_{1}", 0.15, "");
 	RooRealVar* lambda2 = new RooRealVar(tag + "_lambdaExpo2", "#lambda_{2}", 0.1, "");
 
     
