@@ -27,19 +27,50 @@ The executable to do the fitting is `./lowMass_prompt`. There are two ways to ru
 1. Running on a single skimmed Ntuple
     ```
     make
-    ./lowMass_prompt [-inputFiles=inputfile]
+    ./lowMass_prompt -inputFiles=inputfile
     ```
-    If `-inputFiles` is not specified, the default skimmed Ntuple used is `/eos/user/u/ufay/2017Data_Jakob/scout_skimmed/scout_skimmed_errored_0.root`.
+    If `-inputFiles` is not specified, the default skimmed Ntuple used is `/mnt/hadoop/store/user/idutta/DarkPhoton/Samples/xcg2Dec2018/2Dec2018xcg_job0_scout_skimmed.root`.
 
 2. Running on multiple skimmed Ntuples
     ```
     make
     ./lowMass_prompt -tchain -inputFiles=scout_skimmed.txt
     ```
-    In this case `scout_skimmed.txt` is a text file containing the LFN of the skimmed Ntuples. 
+    In this case `scout_skimmed.txt` is a text file containing the LFN of the skimmed Ntuples. The `-tchain` flag specifies that a TChain is used to create a TTree from multiple ROOT files.
 
+### Additional Optional Flags
+`-help`
+Displays a help message with information about the flags.
 
-## Displaced Low Mass Limits
+`-fitOutFile`
+Used to specify the path to the txt file to write fit results. Default path is `fitSB_JPsi_output.txt`.  
+Example:
+```
+./lowMass_prompt -fitOutFile=fit.txt
+```
+
+`-imgtag`
+Used to specify tag for identifying output image file and ROOT file storing RooWorkspace. No tags are used as default.  
+Example:
+```
+./lowMass_prompt -imgtag=allEvents
+```
+
+`-totalEntries`
+Specifies program to use the number of entries in the range 0 - 10 GeV from the input file for setting initial values of `nsig` and `nbkg`. Default uses the number of entries in the JPsi range (2.0 - 3.5 GeV).  
+Example:
+```
+./lowMass_prompt -totalEntries
+```
+
+### Skimmed NTuples
+```
+/mnt/hadoop/store/user/ufay/lowMassPromptDP/subTree_500000.root
+/mnt/hadoop/store/user/ufay/lowMassPromptDP/subTree_1000000.root
+```
+These are smaller NTuples containing 500 000 and 1 000 000 total entries respectively in the whole range 0 - 10 GeV. They can be used for debugging. 
+
+## Displaced Low Mass Limits 
 To run:
 ```
 make getLimits
