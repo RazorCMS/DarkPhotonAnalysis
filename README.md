@@ -68,7 +68,7 @@ Example:
 /mnt/hadoop/store/user/ufay/lowMassPromptDP/subTree_500000.root
 /mnt/hadoop/store/user/ufay/lowMassPromptDP/subTree_1000000.root
 ```
-These are smaller NTuples containing 500 000 and 1 000 000 total entries respectively in the whole range 0 - 10 GeV.
+These are smaller NTuples containing 500 000 and 1 000 000 total entries respectively in the whole range 0 - 10 GeV. They can be used for debugging. 
 
 ## Displaced Low Mass Limits 
 To run:
