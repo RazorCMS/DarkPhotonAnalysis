@@ -854,10 +854,11 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 		m_mumu.setBins(1000);
 		RooDataHist* binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu), *treemass);
     delete tree;
+		//delete treemass;
 
     // mass around JPsi
     RooDataSet *massCut4 = (RooDataSet*) treemass->reduce(RooFit::Name("massCut4"), RooFit::SelectVars(RooArgSet(m_mumu)), RooFit::CutRange("m4"));
-
+		delete treemass;
     // Some index for naming; remnant from previous code but I think won't remove for now.
     int i = 4;
 
@@ -1055,9 +1056,9 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 		else if( f_bkg == "double_exp" )
 		{
 			std::cout << "HERE" << std::endl;
-			w->var(bkg_function_ws+"_lambdaExpo1")->setVal(2.4502e-02);
-			w->var(bkg_function_ws+"_lambdaExpo2")->setVal(-7.8504e-01);
-			w->var(bkg_function_ws+"_frac")->setVal(2.7871e-02);
+			w->var(bkg_function_ws+"_lambdaExpo1")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo1")->getVal());
+			w->var(bkg_function_ws+"_lambdaExpo2")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo2")->getVal());
+			w->var(bkg_function_ws+"_frac")->setVal(w->var(bkg_only_function_ws+"_frac")->getVal());
 			std::cout << "HERE 2" << std::endl;
 		}
 		else if ( f_bkg == "single_pow" )

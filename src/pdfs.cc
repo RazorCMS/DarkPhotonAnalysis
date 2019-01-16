@@ -216,7 +216,7 @@ TString MakeDoubleExpo(bool extended, TString tag, RooRealVar &mzd, RooWorkspace
 	 //--------------------------------------------
 	 // Square variables to avoid rising exponential
 	 //--------------------------------------------
-  	RooFormulaVar* lambda_sq1 = new RooFormulaVar(tag + "_lambda1Sq", "#lambda^{2}_{1}", "-1*@0*@0", *lambda1);
+  RooFormulaVar* lambda_sq1 = new RooFormulaVar(tag + "_lambda1Sq", "#lambda^{2}_{1}", "-1*@0*@0", *lambda1);
 	RooFormulaVar* lambda_sq2 = new RooFormulaVar(tag + "_lambda2Sq", "#lambda^{2}_{2}", "-1*@0*@0", *lambda2);
 
 	RooRealVar *frac    = new RooRealVar(tag+"_frac", "frac", 0.2, 0., 1.0, "");
