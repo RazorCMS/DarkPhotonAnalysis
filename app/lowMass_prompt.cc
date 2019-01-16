@@ -96,6 +96,20 @@ int main(int argc, char* argv[]) {
     if (imgTag == "") {
         std::cerr << "[INFO]: No image tag provided. Using none as default" << imgTag << std::endl;
     }
+    //----------------------------------
+    //Getting background function to fit
+    //----------------------------------
+    std::string f_bkg = ParseCommandLine( argc, argv, "-f_bkg=" );
+
+    if ( f_bkg == "")
+    {
+        f_bkg = "single_exp";
+        std::cerr << "[WARNING]: No bkg function for fitting m_mumu provided . Using default: " << f_bkg << std::endl;
+    }
+    else
+    {
+      std::cout << "[INFO]: Using:" << f_bkg  << " as bkg function for fitting m_mumu"<< std::endl;
+    }
 
 
     // Total entries
@@ -128,5 +142,5 @@ int main(int argc, char* argv[]) {
     TString cut = "";
 
     // Do S+B fitting
-    SplusB_fit_test(tree->CopyTree(cut), totalEntries, fitOutFile.c_str(), imgTag.c_str(), "double_pow");
+    SplusB_fit_test(tree->CopyTree(cut), totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
 }

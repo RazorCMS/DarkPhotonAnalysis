@@ -915,29 +915,8 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 			 bkg_function_ws = MakeBernPoly4(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
 			 bkg_only_function_ws = MakeBernPoly4(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
 		 }
-/*
-    TString dexpofit = MakeDoubleExpo(true, Form("DExpo_bkg%d", i), m_mumu, *w);
-    TString expofit = MakeExpo(true, Form("Expo_bkg%d", i), m_mumu, *w);
-    TString bernpoly2fit = MakeBernPoly2(true, Form("BernPoly2_bkg%d", i), m_mumu, *w);
-    TString bernpoly2fit_NE = MakeBernPoly2(false, Form("BernPoly2_NE_bkg%d", i), m_mumu, *w);
-    TString bernpoly3fit = MakeBernPoly3(true, Form("BernPoly3_bkg%d", i), m_mumu, *w);
-    TString bernpoly3fit_NE = MakeBernPoly3(false, Form("BernPoly3_NE_bkg%d", i), m_mumu, *w);
-    TString bernpoly4fit_NE = MakeBernPoly4(false, Form("BernPoly4_bkg%d", i), m_mumu, *w);
-    TString bernpoly5fit_NE = MakeBernPoly5(false, Form("BernPoly5_bkg%d", i), m_mumu, *w);
-*/
 
-    // Estimate number of signal and background events.
-    // Using first fit as guess
-    // V1
-/*
-    RooRealVar nsig("nsig", "", 8.1164e+05);
-    RooRealVar nbkg("nbkg", "", 3.9635e+06);
-*/
-/*
-    // V2 - using values from fit with xcgjob0
-    RooRealVar nsig("nsig", "", 9.24227e+05);
-    RooRealVar nbkg("nbkg", "", 4.36363e+06);
-*/
+
     // V3 - for finding scaling of nentries with time taken to fit
     RooRealVar nsig("nsig", "", massCut4->numEntries() / 5);
     RooRealVar nbkg("nbkg", "", massCut4->numEntries());
@@ -1036,114 +1015,39 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     w->var(dcbfit_NE+"_CB_n2")->setVal(1.0033e+02);
     w->var(dcbfit_NE+"_frac")->setVal(3.6957e-01);
 
-/*
-    w->var(bwfit+"_widthBW")->setVal(0.03);
-    w->var(bwfit+"_Ns")->setVal(massCut4->numEntries());
-
-    w->var(bwfit_NE+"_widthBW")->setVal(0.03);
-
-    w->var(dexpofit+"_lambdaExpo1")->setVal(-4.9988e-01);
-    w->var(dexpofit+"_lambdaExpo2")->setVal(-9.4254e-01);
-    w->var(dexpofit+"_frac")->setVal(1.2962e-04);
-    w->var(dexpofit+"_Nbkg")->setVal(massCut4->numEntries());
-
-    // V1
-    w->var(dexpofit_NE+"_lambdaExpo1")->setVal(-4.9988e-01);
-    w->var(dexpofit_NE+"_lambdaExpo2")->setVal(-9.4254e-01);
-    w->var(dexpofit_NE+"_frac")->setVal(1.2962e-04);
-*/
-/*
-    // V2 - from xcgjob0 fit
-    w->var(dexpofit_NE+"_lambdaExpo1")->setVal(-2.73926e-01);
-    w->var(dexpofit_NE+"_lambdaExpo2")->setVal(-7.30272e-01);
-    w->var(dexpofit_NE+"_frac")->setVal(6.13955e-08);
-*/
-/*
-    // V3 - for testing, from initial 500 000 entry file fit
-    w->var(dexpofit_NE+"_lambdaExpo1")->setVal(3.06624e-01);
-    w->var(dexpofit_NE+"_lambdaExpo2")->setVal(-8.05551e-01);
-    w->var(dexpofit_NE+"_frac")->setVal(5.97124e-02);
-*/
-    // V4 - for testing, from 1 000 000 entry file fit, Strategy 1, total entries
-/*
-    w->var(expofit+"_lambdaExpo")->setVal(-1.5);
-    w->var(expofit+"_Nbkg")->setVal(massCut4->numEntries());
-
-    w->var(bernpoly2fit+"_pC")->setVal(10.);
-    w->var(bernpoly2fit+"_p0")->setVal(1.);
-    w->var(bernpoly2fit+"_p1")->setVal(-1.);
-    w->var(bernpoly2fit+"_Nbkg")->setVal(massCut4->numEntries());
-
-    w->var(bernpoly2fit_NE+"_pC")->setVal(10.);
-    w->var(bernpoly2fit_NE+"_p0")->setVal(1.);
-    w->var(bernpoly2fit_NE+"_p1")->setVal(-1.);
-
-    w->var(bernpoly3fit+"_pC")->setVal(10.);
-    w->var(bernpoly3fit+"_p0")->setVal(1.);
-    w->var(bernpoly3fit+"_p1")->setVal(-0.5);
-    w->var(bernpoly3fit+"_p2")->setVal(-1.);
-    w->var(bernpoly3fit+"_Nbkg")->setVal(massCut4->numEntries());
-
-    w->var(bernpoly3fit_NE+"_pC")->setVal(10.);
-    w->var(bernpoly3fit_NE+"_p0")->setVal(1.);
-    w->var(bernpoly3fit_NE+"_p1")->setVal(-0.5);
-    w->var(bernpoly3fit_NE+"_p2")->setVal(-1.);
-
-    w->var(bernpoly4fit_NE+"_pC")->setVal(10.);
-    w->var(bernpoly4fit_NE+"_p0")->setVal(1.);
-    w->var(bernpoly4fit_NE+"_p1")->setVal(-0.5);
-    w->var(bernpoly4fit_NE+"_p2")->setVal(-1.);
-    w->var(bernpoly4fit_NE+"_p3")->setVal(-1.5);
-
-    w->var(bernpoly5fit_NE+"_pC")->setVal(10.);
-    w->var(bernpoly5fit_NE+"_p0")->setVal(1.);
-    w->var(bernpoly5fit_NE+"_p1")->setVal(-0.5);
-    w->var(bernpoly5fit_NE+"_p2")->setVal(-1.);
-    w->var(bernpoly5fit_NE+"_p3")->setVal(-1.5);
-    w->var(bernpoly5fit_NE+"_p4")->setVal(-1.5);
-*/
-    /*
-     * Define S+B model
-     */
-/*
-    // BW + Expo
-    RooAddPdf *sb1 = new RooAddPdf("sb1", "sb1", RooArgList(*w->pdf(bwfit), *w->pdf(expofit)));
-
-    // BW + Double Expo
-    RooAddPdf *sb2 = new RooAddPdf("sb2", "sb2", RooArgList(*w->pdf(bwfit_NE), *w->pdf(dexpofit_NE)), RooArgList(nsig, nbkg));
-    // CB + Expo
-    RooAddPdf *sb3 = new RooAddPdf("sb3", "sb3", RooArgList(*w->pdf(cbfit), *w->pdf(expofit)));
-
-    // CB + Bernstein Poly Order 2
-    RooAddPdf *sb4 = new RooAddPdf("sb4", "sb4", RooArgList(*w->pdf(cbfit), *w->pdf(bernpoly2fit)));
-
-    // CB + Bernstein Poly Order 3
-    RooAddPdf *sb5 = new RooAddPdf("sb5", "sb5", RooArgList(*w->pdf(cbfit), *w->pdf(bernpoly3fit)));
-
-    // CB + Double Expo
-    RooAddPdf *sb6 = new RooAddPdf("sb6", "sb6", RooArgList(*w->pdf(cbfit), *w->pdf(dexpofit)));
-*/
     // s+b model
-    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws+"_NE")), RooArgList(nsig, nbkg));
+    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws)), RooArgList(nsig, nbkg));
 		// b-only model
-		RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws+"_NE")), RooArgList(nbkg_only));
+		RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws)), RooArgList(nbkg_only));
 
-    /*
-     * Do S+B fit
-     */
-/*
-    sb1->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
-    sb2->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
-    sb3->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
-    sb4->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
-    sb5->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
-*/
+
     TStopwatch t;
 		//b-only fit
 		t.Start();
     //RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"), RooFit::Timer(1), RooFit::Strategy(0), RooFit::NumCPU(32));
 		RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"),RooFit::Strategy(0));
-    t.Print();
+		t.Print();
+		/*
+		 * Plot B fit
+		 */
+		TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
+		RooPlot *frameB = m_mumu.frame(1.2, 4.0, 100);
+		binned_tree_mass->plotOn(frameB);
+
+		b_only_model->plotOn(frameB, RooFit::Name(f_bkg), RooFit::LineColor(kBlue), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
+		frameB->Draw();
+		frameB->SetTitle("");
+		TLegend *legB = new TLegend(0.1,0.7,0.4,0.9);
+		legB->AddEntry(frameB->findObject("dexpofit_NE"), "dexpo_NE");
+		legB->Draw();
+		cb->SetLogy();
+		cb->Update();
+		cb->SaveAs("b_JPsi_" + f_bkg + "_"  + imgTag + ".png");
+
+
+		//------------------------------------------------------
+		//Set S+B initial parameters to those of the b-only fit
+		//------------------------------------------------------
 		if ( f_bkg == "single_exp" )
 		{
 			w->var(bkg_function_ws+"_lambdaExpo")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo")->getVal());
@@ -1167,68 +1071,13 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 		}
 
 
-
+		//------------
 		//s+b fit
+		//-------------
     t.Start();
     RooFitResult *sb7res = sb_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("JPsi"), RooFit::Timer(1), RooFit::Strategy(0));
 		//RooFitResult *sb7res;
     t.Print();
-
-
-    /*
-     * Test S fit
-     */
-
-//    RooFitResult *bwfitres = w->pdf(bwfit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("sig"));
-//    RooFitResult *cbfitres = w->pdf(cbfit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("sig"));
-//    RooFitResult *dcbfitres = w->pdf(dcbfit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("sig"), RooFit::Timer(1));
-//    RooFitResult *dcbfitres_NE = w->pdf(dcbfit_NE)->fitTo(*massCut4, RooFit::Save(kTRUE), RooFit::Range("sig"), RooFit::Timer(1), RooFit::Strategy(1));
-
-
-    /*
-     * Test B fit
-     */
-//        RooFitResult *expofitres = w->pdf(expofit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
-//        RooFitResult *dexpofitres = w->pdf(dexpofit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
-//        RooFitResult *dexpofitres_NE = w->pdf(dexpofit_NE)->fitTo(*massCut4, RooFit::Save(kTRUE), RooFit::Range("low,high"), RooFit::Timer(1));
-//      RooFitResult *bernpoly2fitNEres = w->pdf(bernpoly2fit_NE)->fitTo(*massCut4, RooFit::Save(kTRUE), RooFit::Range("low,high"));
-//      RooFitResult *bernpoly3fitres = w->pdf(bernpoly3fit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
-//      RooFitResult *bernpoly3fitNEres = w->pdf(bernpoly3fit_NE)->fitTo(*massCut4, RooFit::Save(kTRUE), RooFit::Range("low,high"));
-//      RooFitResult *bernpoly4fitNEres = w->pdf(bernpoly4fit_NE)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
-//      RooFitResult *bernpoly5fitNEres = w->pdf(bernpoly5fit_NE)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
-
-    /*
-     * Plot B fit
-     */
-    TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
-    RooPlot *frameB = m_mumu.frame(1.2, 4.0, 100);
-    binned_tree_mass->plotOn(frameB);
-
-    b_only_model->plotOn(frameB, RooFit::Name(f_bkg), RooFit::LineColor(kBlue), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
-//    w->pdf(dexpofit)->plotOn(frameB, RooFit::Name("dexpofit"), RooFit::LineColor(kRed));
-//    w->pdf(expofit)->plotOn(frameB, RooFit::Name("expofit"));
-//    w->pdf(bernpoly2fit_NE)->plotOn(frameB, RooFit::Name("bernpoly2fit_NE"), RooFit::LineColor(kGreen));
-//    w->pdf(bernpoly3fit)->plotOn(frameB, RooFit::Name("bernpoly3fit"), RooFit::LineColor(kGray));
-//    w->pdf(bernpoly3fit_NE)->plotOn(frameB, RooFit::Name("bernpoly3fit_NE"), RooFit::LineColor(kGray));
-//    W->PDF(Bernpoly4fit_NE)->plotOn(frameB, RooFit::Name("bernpoly4fit_NE"), RooFit::LineColor(kBlue));
-//    w->pdf(bernpoly5fit_NE)->plotOn(frameB, RooFit::Name("bernpoly5fit_NE"), RooFit::LineColor(kRed));
-    frameB->Draw();
-    frameB->SetTitle("");
-
-    TLegend *legB = new TLegend(0.1,0.7,0.4,0.9);
-    legB->AddEntry(frameB->findObject("dexpofit_NE"), "dexpo_NE");
-//    legB->AddEntry(frameB->findObject("expofit"), "expo");
-//    legB->AddEntry(frameB->findObject("dexpofit"), "dexpo");
-//    legB->AddEntry(frameB->findObject("bernpoly2fit_NE"), "bernpoly2_NE");
-//    legB->AddEntry(frameB->findObject("bernpoly3fit"), "bernpoly3");
-//    legB->AddEntry(frameB->findObject("bernpoly3fit_NE"), "bernpoly3_NE");
-//    legB->AddEntry(frameB->findObject("bernpoly4fit_NE"), "bernpoly4_NE");
-//    legB->AddEntry(frameB->findObject("bernpoly5fit_NE"), "bernpoly5_NE");
-    legB->Draw();
-
-    cb->SetLogy();
-    cb->Update();
-    cb->SaveAs("b_JPsi_" + imgTag + ".png");
 
     /*
      * Plot S fit
@@ -1255,7 +1104,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
     cs->SetLogy();
     cs->Update();
-    cs->SaveAs("s_JPsi_" + imgTag + ".png");
+    cs->SaveAs("s_JPsi_" + f_bkg + "_" + imgTag + ".png");
 
 
     /*
@@ -1292,7 +1141,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
     csb->SetLogy();
     csb->Update();
-    csb->SaveAs("sb_JPsi_" + imgTag + ".png");
+    csb->SaveAs("sb_JPsi_" + f_bkg + "_"  + imgTag + ".png");
 
     /*
      * Get fit output to txt file

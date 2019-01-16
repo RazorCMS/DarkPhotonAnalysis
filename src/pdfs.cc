@@ -177,24 +177,22 @@ TString MakeBreitWigner_NE(TString tag, double mass, double lifetime, RooRealVar
 };
 
 TString MakeExpo(bool extended, TString tag, RooRealVar &mzd, RooWorkspace &w) {
-        RooRealVar *lambda = new RooRealVar(tag+"_lambdaExpo", "#lambda", -0.1, "");
-
-        lambda->setConstant(kFALSE);
-
-        if (extended) {
-            RooRealVar *Nbkg = new RooRealVar(tag+"_Nbkg", "N_{bkg}", 1, "events");
-            Nbkg->setConstant(kFALSE);
-            RooExponential *expo = new RooExponential(tag+"_NE", "expo", mzd, *lambda);
-            RooAddPdf *ext_expo = new RooAddPdf(tag, "ext_expo", RooArgList(*expo), RooArgList(*Nbkg));
-            w.import(*ext_expo);
-        }
-
-        else {
-            RooExponential *expo = new RooExponential(tag, "expo", mzd, *lambda);
-            w.import(*expo);
-        }
-
-        return tag;
+  RooRealVar *lambda = new RooRealVar(tag+"_lambdaExpo", "#lambda", -0.1, "");
+  lambda->setConstant(kFALSE);
+  if (extended)
+  {
+    RooRealVar *Nbkg = new RooRealVar(tag+"_Nbkg", "N_{bkg}", 1, "events");
+    Nbkg->setConstant(kFALSE);
+    RooExponential *expo = new RooExponential(tag+"_NE", "expo", mzd, *lambda);
+    RooAddPdf *ext_expo = new RooAddPdf(tag, "ext_expo", RooArgList(*expo), RooArgList(*Nbkg));
+    w.import(*ext_expo);
+  }
+  else
+  {
+    RooExponential *expo = new RooExponential(tag, "expo", mzd, *lambda);
+    w.import(*expo);
+  }
+  return tag;
 };
 
 TString MakeExpo_NE(TString tag, RooRealVar &mzd, RooWorkspace &w) {
@@ -313,16 +311,20 @@ TString MakeSinglePow(TString tag, RooRealVar &mzd, RooWorkspace &w, bool ext) {
 	RooRealVar *alpha  = new RooRealVar(tag+"_alpha","#alpha", -1.1);
   alpha->setConstant(kFALSE);
 
-	RooRealVar *Nbkg = new RooRealVar(tag+"_Nbkg", "N_{bkg}", 1, "events");
-
-	RooGenericPdf *pow = new RooGenericPdf(tag+"_NE", "", "@0^@1", RooArgList(mzd,*alpha));
-	RooAddPdf *ext_pow = new RooAddPdf(tag, "ext_pow", RooArgList(*pow), RooArgList(*Nbkg));
-
-	Nbkg->setConstant(kFALSE);
-	alpha->setRange(-100,0);
-
-  w.import(*ext_pow);
-
+  if ( ext )
+  {
+    RooRealVar *Nbkg = new RooRealVar(tag+"_Nbkg", "N_{bkg}", 1, "events");
+    RooGenericPdf *pow = new RooGenericPdf(tag+"_NE", "", "@0^@1", RooArgList(mzd,*alpha));
+    RooAddPdf *ext_pow = new RooAddPdf(tag, "ext_pow", RooArgList(*pow), RooArgList(*Nbkg));
+    Nbkg->setConstant(kFALSE);
+    w.import(*ext_pow);
+  }
+  else
+  {
+    RooGenericPdf *pow = new RooGenericPdf(tag, "", "@0^@1", RooArgList(mzd,*alpha));
+    w.import(*pow);
+  }
+	alpha->setRange(-10,0);
   return tag;
 };
 
@@ -330,22 +332,26 @@ TString MakeDoublePow(TString tag, RooRealVar &mzd, RooWorkspace &w, bool ext) {
 	RooRealVar *alpha1  = new RooRealVar(tag+"_alpha1", "#alpha_{1}", -1.0,"");
 	RooRealVar *alpha2  = new RooRealVar(tag+"_alpha2", "#alpha_{2}", -0.5,"");
 	RooRealVar *f       = new RooRealVar(tag+"_f", "f", 0.5, 0.0, 1.0);
-	RooRealVar *Nbkg    = new RooRealVar(tag+"_Nbkg","N_{bkg}", 1, "events");
+  alpha1->setConstant(kFALSE);
+	alpha2->setConstant(kFALSE);
 
 	RooGenericPdf *pow1 = new RooGenericPdf(tag+"_pow1", "", "@0^@1", RooArgList(mzd, *alpha1));
 	RooGenericPdf *pow2 = new RooGenericPdf(tag+"_pow2", "", "@0^@1", RooArgList(mzd, *alpha2));
-	RooAddPdf *doublePow = new RooAddPdf(tag+"_NE", "", *pow1, *pow2, *f);
-	RooAddPdf *ext_doublePow = new RooAddPdf(tag, "ext_dpow", RooArgList(*doublePow), RooArgList(*Nbkg));
-
-	Nbkg->setConstant(kFALSE);
-	alpha1->setConstant(kFALSE);
-	alpha2->setConstant(kFALSE);
+  if ( ext )
+  {
+    RooRealVar *Nbkg    = new RooRealVar(tag+"_Nbkg","N_{bkg}", 1, "events");
+    RooAddPdf *doublePow = new RooAddPdf(tag+"_NE", "", *pow1, *pow2, *f);
+  	RooAddPdf *ext_doublePow = new RooAddPdf(tag, "ext_dpow", RooArgList(*doublePow), RooArgList(*Nbkg));
+  	Nbkg->setConstant(kFALSE);
+    w.import(*ext_doublePow);
+  }
+  else
+  {
+    RooAddPdf *doublePow = new RooAddPdf(tag, "", *pow1, *pow2, *f);
+    w.import(*doublePow);
+  }
   alpha1->setRange(-100,0);
   alpha2->setRange(-100,0);
-	//alpha1->setMax(0.0);
-	//alpha2->setMax(0.0);
-
-	w.import(*ext_doublePow);
 
 	return tag;
 };
