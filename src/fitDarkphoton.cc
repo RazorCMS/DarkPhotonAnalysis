@@ -71,8 +71,8 @@ const float bottomMargin = 0.12;
  *      sideband_max: upper mass of the sideband region
  */
 void MakePlotTree(TTree *tree, TString tag, TString vtxCut, double sideband_min, double sideband_max) {
-	RooRealVar mzd("mass", "m_{#mu#mu}", sideband_min, sideband_max, "GeV");
-	
+	RooRealVar m_mumu("mass", "m_{#mu#mu}", sideband_min, sideband_max, "GeV");
+
 	TCanvas* c1 = new TCanvas( "c", "c", 2119, 33, 800, 700 );
 	c1->SetHighLightColor(2);
 	c1->SetFillColor(0);
@@ -85,25 +85,25 @@ void MakePlotTree(TTree *tree, TString tag, TString vtxCut, double sideband_min,
 	c1->SetFrameBorderMode(0);
 	c1->SetFrameBorderMode(0);
 
-	RooPlot *fmzd = mzd.frame();
-	RooDataSet data("data", "", RooArgSet(mzd), RooFit::Import(*tree));
-	data.plotOn(fmzd);
-	fmzd->Draw();
-	fmzd->SetTitle("");
+	RooPlot *fm_mumu = m_mumu.frame();
+	RooDataSet data("data", "", RooArgSet(m_mumu), RooFit::Import(*tree));
+	data.plotOn(fm_mumu);
+	fm_mumu->Draw();
+	fm_mumu->SetTitle("");
 	c1->Update();
         system("mkdir -p output/");
 	c1->SaveAs("output/dataPlot_" + tag + "_cut_" + vtxCut + "cm.png");
 }
-	
+
 
 /*
  * Makes plots of the fitted signal and background.
  *
  * Args
- *      mzd: RooRealVar for the mass
+ *      m_mumu: RooRealVar for the mass
  *      w: RooWorkspace with fitted shapes
  */
-void MakePlot(RooRealVar &mzd, RooWorkspace &w, TString binNumber, TString vtxCut, TString tag_sig, TString tag_bkg, double bkgYield, RooDataSet *data_sig, RooDataSet *data_bkg, RooDataHist *data_toy) {
+void MakePlot(RooRealVar &m_mumu, RooWorkspace &w, TString binNumber, TString vtxCut, TString tag_sig, TString tag_bkg, double bkgYield, RooDataSet *data_sig, RooDataSet *data_bkg, RooDataHist *data_toy) {
 	//-------------------------------------------
 	// Plotting
 	// ------------------------------------------
@@ -120,91 +120,91 @@ void MakePlot(RooRealVar &mzd, RooWorkspace &w, TString binNumber, TString vtxCu
 	c1->SetFrameBorderMode(0);
 
 	// Background
-	RooPlot *fmzd = mzd.frame();
-	RooDataSet* dataCut = (RooDataSet*) data_bkg->reduce(RooFit::Name("dataCut"),RooFit::SelectVars(RooArgSet(mzd)),RooFit::CutRange("low"));
-	RooDataSet* dataHigh = (RooDataSet*) data_bkg->reduce(RooFit::Name("dataHigh"),RooFit::SelectVars(RooArgSet(mzd)),RooFit::CutRange("high"));
+	RooPlot *fm_mumu = m_mumu.frame();
+	RooDataSet* dataCut = (RooDataSet*) data_bkg->reduce(RooFit::Name("dataCut"),RooFit::SelectVars(RooArgSet(m_mumu)),RooFit::CutRange("low"));
+	RooDataSet* dataHigh = (RooDataSet*) data_bkg->reduce(RooFit::Name("dataHigh"),RooFit::SelectVars(RooArgSet(m_mumu)),RooFit::CutRange("high"));
 	dataCut->append(*dataHigh);
-//	dataCut->plotOn(fmzd);
-	data_bkg->plotOn(fmzd);
+//	dataCut->plotOn(fm_mumu);
+	data_bkg->plotOn(fm_mumu);
 //
-	w.pdf(tag_bkg)->plotOn(fmzd);
-//	w.pdf(tag_bkg)->plotOn(fmzd, RooFit::Normalization(bkgYield, RooAbsReal::NumEvent), RooFit::Range("full"), RooFit::NormRange("full"));
-//	w.pdf(tag_bkg)->plotOn(fmzd, RooFit::LineColor(kGreen), RooFit::Range("full"), RooFit::NormRange("full"));
-//	w.pdf(tag_bkg)->plotOn(fmzd,RooFit::LineColor(kBlue), RooFit::Normalization(bkgYield, RooAbsReal::NumEvent), RooFit::Range("signal"), RooFit::NormRange("signal"));
-	
-	float maxC = fmzd->GetMaximum();
-	fmzd->SetAxisRange(0.1, maxC, "Y");
-	fmzd->Draw();
-	fmzd->SetTitle("");
+	w.pdf(tag_bkg)->plotOn(fm_mumu);
+//	w.pdf(tag_bkg)->plotOn(fm_mumu, RooFit::Normalization(bkgYield, RooAbsReal::NumEvent), RooFit::Range("full"), RooFit::NormRange("full"));
+//	w.pdf(tag_bkg)->plotOn(fm_mumu, RooFit::LineColor(kGreen), RooFit::Range("full"), RooFit::NormRange("full"));
+//	w.pdf(tag_bkg)->plotOn(fm_mumu,RooFit::LineColor(kBlue), RooFit::Normalization(bkgYield, RooAbsReal::NumEvent), RooFit::Range("signal"), RooFit::NormRange("signal"));
+
+	float maxC = fm_mumu->GetMaximum();
+	fm_mumu->SetAxisRange(0.1, maxC, "Y");
+	fm_mumu->Draw();
+	fm_mumu->SetTitle("");
 	c1->Update();
         system("mkdir -p output/");
 	c1->SaveAs("output/bkgFit_bin" + binNumber + "_cut_" + vtxCut + "cm.png");
 
-	fmzd->SetName("BkgFitPlot");
+	fm_mumu->SetName("BkgFitPlot");
 
-	w.import(*fmzd);
+	w.import(*fm_mumu);
 
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[BKG GOODNESS OF FIT]:" << std::endl;
-	std::cout << fmzd->chiSquare() << std::endl;;
+	std::cout << fm_mumu->chiSquare() << std::endl;;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << std::endl;
 
 	// Signal
-	RooPlot *fmzd2 = mzd.frame();
+	RooPlot *fm_mumu2 = m_mumu.frame();
 	double npoints_signal = data_sig->numEntries();
-	data_sig->plotOn(fmzd2);
-	w.pdf(tag_sig)->plotOn(fmzd2, RooFit::LineColor(kRed), RooFit::Range("full"), RooFit::NormRange("full"));
-	fmzd2->Draw();
-	fmzd2->SetTitle("");
+	data_sig->plotOn(fm_mumu2);
+	w.pdf(tag_sig)->plotOn(fm_mumu2, RooFit::LineColor(kRed), RooFit::Range("full"), RooFit::NormRange("full"));
+	fm_mumu2->Draw();
+	fm_mumu2->SetTitle("");
 	c1->Update();
 	c1->SaveAs("output/signalFit_bin" + binNumber + "_cut_" + vtxCut + "cm.png");
-	fmzd2->SetName("SignalFitPlot");
+	fm_mumu2->SetName("SignalFitPlot");
 
-	w.import(*fmzd2);
+	w.import(*fm_mumu2);
 
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[SIGNAL GOODNESS OF FIT]:" << std::endl;
-	std::cout << fmzd2->chiSquare() << std::endl;;
+	std::cout << fm_mumu2->chiSquare() << std::endl;;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << std::endl;
 
-        
+
 	// Toy Data
-	RooPlot *fmzd3 = mzd.frame();
-	data_toy->plotOn(fmzd3);
-	w.pdf(tag_bkg)->plotOn(fmzd3, RooFit::LineColor(kBlue), RooFit::Range("full"), RooFit::NormRange("full"));
-	fmzd3->Draw();
-	fmzd3->SetTitle("");
+	RooPlot *fm_mumu3 = m_mumu.frame();
+	data_toy->plotOn(fm_mumu3);
+	w.pdf(tag_bkg)->plotOn(fm_mumu3, RooFit::LineColor(kBlue), RooFit::Range("full"), RooFit::NormRange("full"));
+	fm_mumu3->Draw();
+	fm_mumu3->SetTitle("");
 	c1->Update();
 	c1->SaveAs("output/dataToy_bin" + binNumber + "_cut_" + vtxCut + "cm.png");
-	fmzd3->SetName( "dataToyPlot" );
+	fm_mumu3->SetName( "dataToyPlot" );
 
-	w.import(*fmzd3);
+	w.import(*fm_mumu3);
 }
 
 
 /*
- * The functions below fit the MC signal or background with the specified shapes. 
- * They return custom structs that contain the tag given to the shapes and the 
+ * The functions below fit the MC signal or background with the specified shapes.
+ * They return custom structs that contain the tag given to the shapes and the
  * shape parameters. Mainly used in the function 'MakeDataCard'.
  */
-bwFit_output BreitWignerFit(double mass, double lifetime, RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+bwFit_output BreitWignerFit(double mass, double lifetime, RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
 	int npoints = data->numEntries();
 
-	TString tag_signal = MakeBreitWigner(true, "BW_SG", mass, lifetime, mzd, w);
+	TString tag_signal = MakeBreitWigner(true, "BW_SG", mass, lifetime, m_mumu, w);
 	w.var(tag_signal + "_Ns")->setVal((double) npoints);
 
 	RooFitResult *sres = w.pdf(tag_signal)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("full"));
 	sres->SetName("SigFitResult");
-	
+
 	double decay_width = 1. / lifetime;
 	double BW_Ns = w.var(tag_signal + "_Ns")->getVal();
 	double BW_mean_s = w.var(tag_signal + "_meanBW")->getVal();
 	double BW_width_s = w.var(tag_signal + "_widthBW")->getVal();
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -219,14 +219,14 @@ bwFit_output BreitWignerFit(double mass, double lifetime, RooDataSet *data, RooR
 
 	w.import(*sres);
 	w.import(*data);
-	
+
 	return {tag_signal, BW_mean_s, BW_width_s, BW_Ns, npoints};
 }
-	
-expoFit_output SidebandExpoFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+
+expoFit_output SidebandExpoFit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeExpo(true, "EXPO_BKG", mzd, w);
+
+	TString tag_bkg = MakeExpo(true, "EXPO_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg")->setVal((double) npoints);
 
 	RooFitResult *bres = w.pdf(tag_bkg)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
@@ -234,10 +234,10 @@ expoFit_output SidebandExpoFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &
 
 	double sE_Nbkg = w.var(tag_bkg + "_Nbkg")->getVal();
 	double sE_lambda_bkg = w.var(tag_bkg + "_lambdaExpo")->getVal();
-	
+
 	float NbkgUn = w.var(tag_bkg + "_Nbkg")->getError();
 	float BkgNormUn = 1.0 + NbkgUn/sE_Nbkg; //input a lnN to combine
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -255,10 +255,10 @@ expoFit_output SidebandExpoFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &
 	return {tag_bkg, sE_lambda_bkg, sE_Nbkg, npoints};
 }
 
-doubleExpoFit_output SidebandDExpoFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+doubleExpoFit_output SidebandDExpoFit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeDoubleExpo(true, "DEXPO_BKG", mzd, w);
+
+	TString tag_bkg = MakeDoubleExpo(true, "DEXPO_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg")->setVal((double) npoints);
 
 	RooFitResult *bres = w.pdf(tag_bkg)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
@@ -267,10 +267,10 @@ doubleExpoFit_output SidebandDExpoFit(RooDataSet *data, RooRealVar &mzd, RooWork
 	double dE_Nbkg = w.var(tag_bkg + "_Nbkg")->getVal();
 	double dE_lambda1_bkg = w.var(tag_bkg + "_lambdaExpo1")->getVal();
 	double dE_lambda2_bkg = w.var(tag_bkg + "_lambdaExpo2")->getVal();
-	
+
 	float NbkgUn = w.var(tag_bkg + "_Nbkg")->getError();
 	float BkgNormUn = 1.0 + NbkgUn/dE_Nbkg; //input a lnN to combine
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -295,10 +295,10 @@ doubleExpoFit_output SidebandDExpoFit(RooDataSet *data, RooRealVar &mzd, RooWork
 	return {tag_bkg, dE_lambda1_bkg, dE_lambda2_bkg, dE_Nbkg, npoints};
 }
 
-doubleExpoN1N2Fit_output SidebandDExpoN1N2Fit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+doubleExpoN1N2Fit_output SidebandDExpoN1N2Fit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeDoubleExpoN1N2("DEXPON1N2_BKG", mzd, w);
+
+	TString tag_bkg = MakeDoubleExpoN1N2("DEXPON1N2_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg1")->setVal(((double) npoints)/2.);
 	w.var(tag_bkg + "_Nbkg2")->setVal(((double) npoints)/2.);
 
@@ -309,12 +309,12 @@ doubleExpoN1N2Fit_output SidebandDExpoN1N2Fit(RooDataSet *data, RooRealVar &mzd,
 	double dE_Nbkg2 = w.var(tag_bkg + "_Nbkg2")->getVal();
 	double dE_lambda1_bkg = w.var(tag_bkg + "_lambdaExpo1")->getVal();
 	double dE_lambda2_bkg = w.var(tag_bkg + "_lambdaExpo2")->getVal();
-	
+
 	float Nbkg1Un = w.var(tag_bkg + "_Nbkg1")->getError();
 	float Nbkg2Un = w.var(tag_bkg + "_Nbkg2")->getError();
 	float BkgNormUn1 = 1.0 + Nbkg1Un/dE_Nbkg1; //input a lnN to combine
 	float BkgNormUn2 = 1.0 + Nbkg2Un/dE_Nbkg2; //input a lnN to combine
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -336,10 +336,10 @@ doubleExpoN1N2Fit_output SidebandDExpoN1N2Fit(RooDataSet *data, RooRealVar &mzd,
 	return {tag_bkg, dE_lambda1_bkg, dE_lambda2_bkg, dE_Nbkg1, dE_Nbkg2, npoints};
 }
 
-powFit_output SidebandPowFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+powFit_output SidebandPowFit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeSinglePow("POW_BKG", mzd, w);
+
+	TString tag_bkg = MakeSinglePow("POW_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg")->setVal((double) npoints);
 
 	RooFitResult *bres = w.pdf(tag_bkg)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
@@ -347,10 +347,10 @@ powFit_output SidebandPowFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w)
 
 	double sP_Nbkg = w.var(tag_bkg + "_Nbkg")->getVal();
 	double sP_alpha_bkg = w.var(tag_bkg + "_alpha")->getVal();
-	
+
 	float NbkgUn = w.var(tag_bkg + "_Nbkg")->getError();
 	float BkgNormUn = 1.0 + NbkgUn/sP_Nbkg; //input a lnN to combine
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -368,10 +368,10 @@ powFit_output SidebandPowFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w)
 	return {tag_bkg, sP_alpha_bkg, sP_Nbkg, npoints};
 }
 
-doublePowFit_output SidebandDPowFit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+doublePowFit_output SidebandDPowFit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeDoublePow("DPOW_BKG", mzd, w);
+
+	TString tag_bkg = MakeDoublePow("DPOW_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg")->setVal((double) npoints);
 
 	RooFitResult *bres = w.pdf(tag_bkg)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
@@ -380,10 +380,10 @@ doublePowFit_output SidebandDPowFit(RooDataSet *data, RooRealVar &mzd, RooWorksp
 	double dP_Nbkg = w.var(tag_bkg + "_Nbkg")->getVal();
 	double dP_alpha1_bkg = w.var(tag_bkg + "_alpha1")->getVal();
 	double dP_alpha2_bkg = w.var(tag_bkg + "_alpha2")->getVal();
-	
+
 	float NbkgUn = w.var(tag_bkg + "_Nbkg")->getError();
 	float BkgNormUn = 1.0 + NbkgUn/dP_Nbkg; //input a lnN to combine
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -402,10 +402,10 @@ doublePowFit_output SidebandDPowFit(RooDataSet *data, RooRealVar &mzd, RooWorksp
 	return {tag_bkg, dP_alpha1_bkg, dP_alpha2_bkg, dP_Nbkg, npoints};
 }
 
-bernPoly2Fit_output SidebandBernPoly2Fit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+bernPoly2Fit_output SidebandBernPoly2Fit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeBernPoly2(true, "BERNPOLY2_BKG", mzd, w);
+
+	TString tag_bkg = MakeBernPoly2(true, "BERNPOLY2_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg")->setVal((double) npoints);
 
 	RooFitResult *bres = w.pdf(tag_bkg)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
@@ -415,10 +415,10 @@ bernPoly2Fit_output SidebandBernPoly2Fit(RooDataSet *data, RooRealVar &mzd, RooW
 	double poly2_pC_bkg = w.var(tag_bkg + "_pC")->getVal();
 	double poly2_p0_bkg = w.var(tag_bkg + "_p0")->getVal();
 	double poly2_p1_bkg = w.var(tag_bkg + "_p1")->getVal();
-	
+
 	float NbkgUn = w.var(tag_bkg + "_Nbkg")->getError();
 	float BkgNormUn = 1.0 + NbkgUn/poly2_Nbkg; //input a lnN to combine
-		
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -446,10 +446,10 @@ bernPoly2Fit_output SidebandBernPoly2Fit(RooDataSet *data, RooRealVar &mzd, RooW
 	return {tag_bkg, poly2_pC_bkg, poly2_p0_bkg, poly2_p1_bkg, poly2_Nbkg, npoints};
 }
 
-chebPoly2Fit_output SidebandChebPoly2Fit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+chebPoly2Fit_output SidebandChebPoly2Fit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeChebychevPoly2("CHEBPOLY2_BKG", mzd, w);
+
+	TString tag_bkg = MakeChebychevPoly2("CHEBPOLY2_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg")->setVal((double) npoints);
 
 	RooFitResult *bres = w.pdf(tag_bkg)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
@@ -458,10 +458,10 @@ chebPoly2Fit_output SidebandChebPoly2Fit(RooDataSet *data, RooRealVar &mzd, RooW
 	double poly2_Nbkg = w.var(tag_bkg + "_Nbkg")->getVal();
 	double poly2_pC_bkg = w.var(tag_bkg + "_pC")->getVal();
 	double poly2_p0_bkg = w.var(tag_bkg + "_p0")->getVal();
-	
+
 	float NbkgUn = w.var(tag_bkg + "_Nbkg")->getError();
 	float BkgNormUn = 1.0 + NbkgUn/poly2_Nbkg; //input a lnN to combine
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -480,10 +480,10 @@ chebPoly2Fit_output SidebandChebPoly2Fit(RooDataSet *data, RooRealVar &mzd, RooW
 	return {tag_bkg, poly2_pC_bkg, poly2_p0_bkg, poly2_Nbkg, npoints};
 }
 
-bernPoly3Fit_output SidebandBernPoly3Fit(RooDataSet *data, RooRealVar &mzd, RooWorkspace &w) {
+bernPoly3Fit_output SidebandBernPoly3Fit(RooDataSet *data, RooRealVar &m_mumu, RooWorkspace &w) {
         int npoints = data->numEntries();
-	
-	TString tag_bkg = MakeBernPoly3(true, "BERNPOLY3_BKG", mzd, w);
+
+	TString tag_bkg = MakeBernPoly3(true, "BERNPOLY3_BKG", m_mumu, w);
 	w.var(tag_bkg + "_Nbkg")->setVal((double) npoints);
 
 	RooFitResult *bres = w.pdf(tag_bkg)->fitTo(*data, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"));
@@ -494,10 +494,10 @@ bernPoly3Fit_output SidebandBernPoly3Fit(RooDataSet *data, RooRealVar &mzd, RooW
 	double poly3_p0_bkg = w.var(tag_bkg + "_p0")->getVal();
 	double poly3_p1_bkg = w.var(tag_bkg + "_p1")->getVal();
 	double poly3_p2_bkg = w.var(tag_bkg + "_p2")->getVal();
-	
+
 	float NbkgUn = w.var(tag_bkg + "_Nbkg")->getError();
 	float BkgNormUn = 1.0 + NbkgUn/poly3_Nbkg; //input a lnN to combine
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -525,12 +525,12 @@ bernPoly3Fit_output SidebandBernPoly3Fit(RooDataSet *data, RooRealVar &mzd, RooW
 
 #if 0
 /*
- * This function would run over the different resonances and fit them. 
- * Not final and not tested. 
+ * This function would run over the different resonances and fit them.
+ * Not final and not tested.
  */
 int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
-//    system("mkdir -p SplusB_fits");   
-    
+//    system("mkdir -p SplusB_fits");
+
     // Category A
     // ~0.547 GeV
     double mass0 = 0.55;
@@ -545,12 +545,12 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
     // Define Roo variables for different masses
     double masses[] = {mass0, mass1, mass2, mass3, mass4};
-    RooRealVar mzd("mass", "m_{#mu#mu}", 0., 10., "GeV");
-    mzd.setMin(0.);
-    mzd.setMax(10.);
+    RooRealVar m_mumu("mass", "m_{#mu#mu}", 0., 10., "GeV");
+    m_mumu.setMin(0.);
+    m_mumu.setMax(10.);
 
     // Dataset
-    RooDataSet *treemass = new RooDataSet("mass", "", RooArgSet(mzd), RooFit::Import(*tree));
+    RooDataSet *treemass = new RooDataSet("mass", "", RooArgSet(m_mumu), RooFit::Import(*tree));
     RooWorkspace *w = new RooWorkspace("LowMassFits", "");
 
     TString *mlist[] = {"m0", "m1", "m2", "m3", "m4"};
@@ -561,52 +561,52 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
     for (int i = 0; i < 5; i++) {
         /*
          * Set roo variables for the masses
-         */ 
+         */
         double k = 0.3;
         double sig_k = 0.02;
 
             if (i > 1) {
                 k = 0.3;
             }
-        
+
         double mass_lower = masses[i]*(1-k);
         double mass_upper = masses[i]*(1+k);
         double sig_lower = masses[i]*(1-sig_k);
         double sig_upper = masses[i]*(1+sig_k);
         sig_k += 0.01;
 
-        mzd.setRange(Form("m%d", i), mass_lower, mass_upper);
-        mzd.setRange(Form("sig%d", i), sig_lower, sig_upper);
-        mzd.setRange(Form("low%d", i), mass_lower, sig_lower);
-        mzd.setRange(Form("upper%d", i), sig_upper, mass_upper);
+        m_mumu.setRange(Form("m%d", i), mass_lower, mass_upper);
+        m_mumu.setRange(Form("sig%d", i), sig_lower, sig_upper);
+        m_mumu.setRange(Form("low%d", i), mass_lower, sig_lower);
+        m_mumu.setRange(Form("upper%d", i), sig_upper, mass_upper);
 
         /*
          * Define signal shape
-         */ 
-        TString bwfit = MakeBreitWigner(true, Form("BW_sig%d", i), mlist[i], 0.001, mzd, *w);
-        TString cbfit = MakeCB(true, Form("CB_sig%d", i), mlist[i], mzd, *w);
-        TString dcbfit = MakeDoubleCB(true, Form("DCB_sig%d", i), mlist[i], mzd, *w);
-        TString dcbfit_NE = MakeDoubleCB(false, Form("DCB_NE_sig%d", i), mlist[i], mzd, *w);
+         */
+        TString bwfit = MakeBreitWigner(true, Form("BW_sig%d", i), mlist[i], 0.001, m_mumu, *w);
+        TString cbfit = MakeCB(true, Form("CB_sig%d", i), mlist[i], m_mumu, *w);
+        TString dcbfit = MakeDoubleCB(true, Form("DCB_sig%d", i), mlist[i], m_mumu, *w);
+        TString dcbfit_NE = MakeDoubleCB(false, Form("DCB_NE_sig%d", i), mlist[i], m_mumu, *w);
 
         /*
          * Define background shape
-         */ 
-        TString dexpofit = MakeDoubleExpo(true, Form("DExpo_bkg%d", i), mzd, *w);
-        TString dexpofit_NE = MakeDoubleExpo(false, Form("DExpo_NE_bkg%d", i), mzd, *w);
-        TString expofit = MakeExpo(true, Form("Expo_bkg%d", i), mzd, *w);
-        TString bernpoly2fit = MakeBernPoly2(true, Form("BernPoly2_bkg%d", i), mzd, *w);
-        TString bernpoly2fit_NE = MakeBernPoly2(false, Form("BernPoly2_NE_bkg%d", i), mzd, *w);
-        TString bernpoly3fit = MakeBernPoly3(true, Form("BernPoly3_bkg%d", i), mzd, *w);
-        TString bernpoly3fit_NE = MakeBernPoly3(false, Form("BernPoly3_NE_bkg%d", i), mzd, *w);
+         */
+        TString dexpofit = MakeDoubleExpo(true, Form("DExpo_bkg%d", i), m_mumu, *w);
+        TString dexpofit_NE = MakeDoubleExpo(false, Form("DExpo_NE_bkg%d", i), m_mumu, *w);
+        TString expofit = MakeExpo(true, Form("Expo_bkg%d", i), m_mumu, *w);
+        TString bernpoly2fit = MakeBernPoly2(true, Form("BernPoly2_bkg%d", i), m_mumu, *w);
+        TString bernpoly2fit_NE = MakeBernPoly2(false, Form("BernPoly2_NE_bkg%d", i), m_mumu, *w);
+        TString bernpoly3fit = MakeBernPoly3(true, Form("BernPoly3_bkg%d", i), m_mumu, *w);
+        TString bernpoly3fit_NE = MakeBernPoly3(false, Form("BernPoly3_NE_bkg%d", i), m_mumu, *w);
 
         RooRealVar nsig("nsig", "", treemass->numEntries()/100.);
         RooRealVar nbkg("nbkg", "", treemass->numEntries()/100.);
         nsig.setConstant(kFALSE);
         nbkg.setConstant(kFALSE);
-    
+
         /*
          * Set Parameters
-         */ 
+         */
         w->var(cbfit+"_CB_sigma")->setVal(0.01);
         w->var(cbfit+"_CB_alpha")->setVal(1.);
         w->var(cbfit+"_CB_n")->setVal(1.);
@@ -641,7 +641,7 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
         w->var(expofit+"_lambdaExpo")->setVal(-1.5);
         w->var(expofit+"_Nbkg")->setVal(treemass->numEntries());
-        
+
         w->var(bernpoly2fit+"_pC")->setVal(10.);
         w->var(bernpoly2fit+"_p0")->setVal(1.);
         w->var(bernpoly2fit+"_p1")->setVal(-1.);
@@ -665,7 +665,7 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
         /*
          * Define S+B model
-         */ 
+         */
         // BW + Expo
         RooAddPdf *sb1 = new RooAddPdf("sb1", "sb1", RooArgList(*w->pdf(bwfit), *w->pdf(expofit)));
         // BW + Double Expo
@@ -683,7 +683,7 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
         /*
          * Do S+B fit
-         */ 
+         */
         sb1->fitTo(*treemass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(mlist[i]));
         sb2->fitTo(*treemass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(mlist[i]));
         sb3->fitTo(*treemass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(mlist[i]));
@@ -693,10 +693,10 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
 
         /*
-         * Plot S+B fit   
-         */ 
+         * Plot S+B fit
+         */
         TCanvas *csb = new TCanvas("csb", "csb", 800, 700);
-        RooPlot *frameSB = mzd.frame(mass_lower, mass_upper, 100);
+        RooPlot *frameSB = m_mumu.frame(mass_lower, mass_upper, 100);
         treemass->plotOn(frameSB);
 
         sb1->plotOn(frameSB, RooFit::Name("sb1"), RooFit::Range(mlist[i]));
@@ -710,7 +710,7 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
         csb->cd();
         frameSB->Draw();
         frameSB->SetTitle("");
-        
+
         TLegend *legSB = new TLegend(0.1,0.7,0.4,0.9);
         legSB->AddEntry(frameSB->findObject("sb1"), "bw + expo");
         legSB->AddEntry(frameSB->findObject("sb2"), "bw + dexpo");
@@ -730,7 +730,7 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
         /*
          * Test S fit
-         */ 
+         */
         if (testS) {
             RooFitResult *bwfitres = w->pdf(bwfit)->fitTo(*treemass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(siglist[i]));
             RooFitResult *cbfitres = w->pdf(cbfit)->fitTo(*treemass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(siglist[i]));
@@ -738,9 +738,9 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
             /*
              * Plot S fit
-             */ 
+             */
             TCanvas *cs = new TCanvas("cs", "cs", 800, 700);
-            RooPlot *frameS = mzd.frame(mass_lower, mass_upper, 100);
+            RooPlot *frameS = m_mumu.frame(mass_lower, mass_upper, 100);
             tree_mass->plotOn(frameS);
             w->pdf(bwfit)->plotOn(frameS, RooFit::Name("bwfit"));
             w->pdf(cbfit)->plotOn(frameS, RooFit::Name("cbfit"), RooFit::LineColor(kRed));
@@ -766,7 +766,7 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
         /*
          * Test B fit
-         */ 
+         */
         if (testB) {
             RooFitResult *expofitres = w->pdf(expofit)->fitTo(*treemass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(lowlist[i]+","+highlist[i]));
             RooFitResult *dexpofitres = w->pdf(dexpofit)->fitTo(*treemass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range(lowlist[i]+","+highlist[i]));
@@ -776,9 +776,9 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 
             /*
              * Plot B fit
-             */ 
+             */
             TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
-            RooPlot *frameB = mzd.frame(mass_lower, mass_upper, 100);
+            RooPlot *frameB = m_mumu.frame(mass_lower, mass_upper, 100);
             treemass->plotOn(frameB);
             w->pdf(dexpofit)->plotOn(frameB, RooFit::Name("dexpofit"), RooFit::LineColor(kRed));
             w->pdf(dexpofit_NE)->plotOn(frameB, RooFit::Name("dexpofit_NE"), RooFit::LineColor(46));
@@ -816,44 +816,47 @@ int SplusB_fit(TTree *tree, bool testS=false, bool testB=false) {
 /*
  * S+B fitting tested on JPsi resonance.
  *
- * Args 
+ * Args
  *      tree: input TTree containing data.
  *
  * Returns
  *      0 if no errors.
- */    
-int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TString imgTag) {
+ */
+int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TString imgTag, TString f_bkg) {
     // Print tree for checking
-//    tree->Print();
-
-    // ~3.1 GeV - JPsi
+		// ~3.1 GeV - JPsi
     double mass4 = 3.1;
-    
+
     TFile *file = new TFile("LowMassFits_" + imgTag + ".root", "recreate");
     RooWorkspace *w = new RooWorkspace("LowMassFits", "");
 
     // Define Roo variable for mass
-    RooRealVar mzd("mass", "m_{#mu#mu}", 0., 10., "GeV");
-    mzd.setMin(0.);
-    mzd.setMax(10.);
+    RooRealVar m_mumu("mass", "m_{#mu#mu}", 1, 10., "GeV");
+    m_mumu.setMin(1.);
+    m_mumu.setMax(10.);
 
     // Test fitting JPsi first
-    mzd.setRange("m4", 2.0, 3.5);
-    
+    m_mumu.setRange("m4", 2.0, 3.5);
+		// Test fitting JPsi first
+    m_mumu.setRange("JPsi", 1.2, 3.6);
+
     // Test fitting background only
-    mzd.setRange("low", 2.0, 2.9);
-    mzd.setRange("high", 3.2225, 3.5);
+    m_mumu.setRange("low", 1.2, 2.8);
+    m_mumu.setRange("high", 3.25, 3.6);
 
     // Test fitting signal only
-    mzd.setRange("sig", 2.9, 3.225);
+    m_mumu.setRange("sig", 2.9, 3.225);
 
     // Dataset: TTree
     tree->GetBranch("mass");
-    RooDataSet *treemass = new RooDataSet("mass", "", RooArgSet(mzd), RooFit::Import(*tree));
+    RooDataSet *treemass = new RooDataSet("mass", "", RooArgSet(m_mumu), RooFit::Import(*tree));
+		//Defining Binned data set
+		m_mumu.setBins(1000);
+		RooDataHist* binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu), *treemass);
     delete tree;
-  
+
     // mass around JPsi
-    RooDataSet *massCut4 = (RooDataSet*) treemass->reduce(RooFit::Name("massCut4"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("m4"));
+    RooDataSet *massCut4 = (RooDataSet*) treemass->reduce(RooFit::Name("massCut4"), RooFit::SelectVars(RooArgSet(m_mumu)), RooFit::CutRange("m4"));
 
     // Some index for naming; remnant from previous code but I think won't remove for now.
     int i = 4;
@@ -861,30 +864,66 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     /*
      * Define signal shape
      * "_NE" means non-extended PDF.
-     */ 
-    TString dcbfit_NE = MakeDoubleCB(false, Form("DCB_NE_sig%d", i), mass4, mzd, *w);
-/* 
-    TString bwfit = MakeBreitWigner(true, Form("BW_sig%d", i), mass4, 0.001, mzd, *w);
-    TString bwfit_NE = MakeBreitWigner(false, Form("BW_sig%d", i), mass4, 0.001, mzd, *w);
-    TString cbfit = MakeCB(true, Form("CB_sig%d", i), mass4, mzd, *w);
-    TString dcbfit = MakeDoubleCB(true, Form("DCB_sig%d", i), mass4, mzd, *w);
-    TString dcbfit_NE_old = MakeDoubleCB_NE(Form("DCB_NE_sig_old%d", i), mass4, mzd, *w);
+     */
+    TString dcbfit_NE = MakeDoubleCB(false, Form("DCB_NE_sig%d", i), mass4, m_mumu, *w);
+/*
+    TString bwfit = MakeBreitWigner(true, Form("BW_sig%d", i), mass4, 0.001, m_mumu, *w);
+    TString bwfit_NE = MakeBreitWigner(false, Form("BW_sig%d", i), mass4, 0.001, m_mumu, *w);
+    TString cbfit = MakeCB(true, Form("CB_sig%d", i), mass4, m_mumu, *w);
+    TString dcbfit = MakeDoubleCB(true, Form("DCB_sig%d", i), mass4, m_mumu, *w);
+    TString dcbfit_NE_old = MakeDoubleCB_NE(Form("DCB_NE_sig_old%d", i), mass4, m_mumu, *w);
 */
 
     /*
      * Define background shape
      * "_NE" means non-extended PDF.
-     */ 
-    TString dexpofit_NE = MakeDoubleExpo(false, Form("DExpo_NE_bkg%d", i), mzd, *w);
+     */
+		 TString bkg_function_ws;
+		 TString bkg_only_function_ws;
+		 if( f_bkg == "single_exp" )
+		 {
+			 bkg_function_ws = MakeExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+			 bkg_only_function_ws = MakeExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+		 }
+		 else if( f_bkg == "double_exp" )
+		 {
+			 bkg_function_ws = MakeDoubleExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+			 bkg_only_function_ws = MakeDoubleExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+		 }
+		 else if( f_bkg == "single_pow" )
+		 {
+			 bkg_function_ws = MakeSinglePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
+			 bkg_only_function_ws = MakeSinglePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
+		 }
+		 else if( f_bkg == "double_pow" )
+		 {
+			 bkg_function_ws = MakeDoublePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
+			 bkg_only_function_ws = MakeDoublePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
+		 }
+		 else if ( f_bkg == "poly2" )
+		 {
+			 bkg_function_ws = MakeBernPoly2_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+			 bkg_only_function_ws = MakeBernPoly2_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+		 }
+		 else if ( f_bkg == "poly3" )
+		 {
+			 bkg_function_ws = MakeBernPoly3_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+			 bkg_only_function_ws = MakeBernPoly3_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+		 }
+		 else if ( f_bkg == "poly4" )
+		 {
+			 bkg_function_ws = MakeBernPoly4(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+			 bkg_only_function_ws = MakeBernPoly4(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+		 }
 /*
-    TString dexpofit = MakeDoubleExpo(true, Form("DExpo_bkg%d", i), mzd, *w);
-    TString expofit = MakeExpo(true, Form("Expo_bkg%d", i), mzd, *w);
-    TString bernpoly2fit = MakeBernPoly2(true, Form("BernPoly2_bkg%d", i), mzd, *w);
-    TString bernpoly2fit_NE = MakeBernPoly2(false, Form("BernPoly2_NE_bkg%d", i), mzd, *w);
-    TString bernpoly3fit = MakeBernPoly3(true, Form("BernPoly3_bkg%d", i), mzd, *w);
-    TString bernpoly3fit_NE = MakeBernPoly3(false, Form("BernPoly3_NE_bkg%d", i), mzd, *w);
-    TString bernpoly4fit_NE = MakeBernPoly4(false, Form("BernPoly4_bkg%d", i), mzd, *w);
-    TString bernpoly5fit_NE = MakeBernPoly5(false, Form("BernPoly5_bkg%d", i), mzd, *w);
+    TString dexpofit = MakeDoubleExpo(true, Form("DExpo_bkg%d", i), m_mumu, *w);
+    TString expofit = MakeExpo(true, Form("Expo_bkg%d", i), m_mumu, *w);
+    TString bernpoly2fit = MakeBernPoly2(true, Form("BernPoly2_bkg%d", i), m_mumu, *w);
+    TString bernpoly2fit_NE = MakeBernPoly2(false, Form("BernPoly2_NE_bkg%d", i), m_mumu, *w);
+    TString bernpoly3fit = MakeBernPoly3(true, Form("BernPoly3_bkg%d", i), m_mumu, *w);
+    TString bernpoly3fit_NE = MakeBernPoly3(false, Form("BernPoly3_NE_bkg%d", i), m_mumu, *w);
+    TString bernpoly4fit_NE = MakeBernPoly4(false, Form("BernPoly4_bkg%d", i), m_mumu, *w);
+    TString bernpoly5fit_NE = MakeBernPoly5(false, Form("BernPoly5_bkg%d", i), m_mumu, *w);
 */
 
     // Estimate number of signal and background events.
@@ -898,13 +937,14 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     // V2 - using values from fit with xcgjob0
     RooRealVar nsig("nsig", "", 9.24227e+05);
     RooRealVar nbkg("nbkg", "", 4.36363e+06);
-*/    
+*/
     // V3 - for finding scaling of nentries with time taken to fit
     RooRealVar nsig("nsig", "", massCut4->numEntries() / 5);
     RooRealVar nbkg("nbkg", "", massCut4->numEntries());
+		RooRealVar nbkg_only("nbkg_only", "", massCut4->numEntries());
 
     /*
-     * option 'totalEntries' specifies whether to use total number of entries 
+     * option 'totalEntries' specifies whether to use total number of entries
      * from 0-10GeV in the file for initial nsig or nbkg.
      *      totalEntries = 1 : use total number of entries from 0 -10 GeV
      *      totalEntries = 0 : use number of entries from 2.0 - 3.5 GeV
@@ -919,11 +959,12 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
     nsig.setConstant(kFALSE);
     nbkg.setConstant(kFALSE);
+		nbkg_only.setConstant(kFALSE);
 
     /*
      * Set Parameters
-     */ 
-/*  
+     */
+/*
     w->var(cbfit+"_CB_sigma")->setVal(0.01);
     w->var(cbfit+"_CB_alpha")->setVal(1.);
     w->var(cbfit+"_CB_n")->setVal(1.);
@@ -936,7 +977,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     w->var(dcbfit+"_CB_alpha2")->setVal(-1.);
     w->var(dcbfit+"_CB_n2")->setVal(10.);
     w->var(dcbfit+"_Ns")->setVal(massCut4->numEntries());
-    
+
     w->var(dcbfit_NE_old+"_CB_mu1")->setVal(3.0764e+00);
     w->var(dcbfit_NE_old+"_CB_alpha1")->setVal(1.8578e+00);
     w->var(dcbfit_NE_old+"_CB_sigma1")->setVal(4.2416e-02);
@@ -969,7 +1010,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     w->var(dcbfit_NE+"_CB_sigma2")->setVal(2.75309e-02);
     w->var(dcbfit_NE+"_CB_n2")->setVal(1.97169e-07);
     w->var(dcbfit_NE+"_frac")->setVal(4.98426e-01);
-*/ 
+*/
 /*
     // V3 - for testing, from initial 500 000 entry file fit
     w->var(dcbfit_NE+"_CB_mu1")->setVal(3.06050e+00);
@@ -995,7 +1036,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     w->var(dcbfit_NE+"_CB_n2")->setVal(1.0033e+02);
     w->var(dcbfit_NE+"_frac")->setVal(3.6957e-01);
 
-/*    
+/*
     w->var(bwfit+"_widthBW")->setVal(0.03);
     w->var(bwfit+"_Ns")->setVal(massCut4->numEntries());
 
@@ -1016,7 +1057,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     w->var(dexpofit_NE+"_lambdaExpo1")->setVal(-2.73926e-01);
     w->var(dexpofit_NE+"_lambdaExpo2")->setVal(-7.30272e-01);
     w->var(dexpofit_NE+"_frac")->setVal(6.13955e-08);
-*/   
+*/
 /*
     // V3 - for testing, from initial 500 000 entry file fit
     w->var(dexpofit_NE+"_lambdaExpo1")->setVal(3.06624e-01);
@@ -1024,14 +1065,10 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     w->var(dexpofit_NE+"_frac")->setVal(5.97124e-02);
 */
     // V4 - for testing, from 1 000 000 entry file fit, Strategy 1, total entries
-    w->var(dexpofit_NE+"_lambdaExpo1")->setVal(2.4502e-02);
-    w->var(dexpofit_NE+"_lambdaExpo2")->setVal(-7.8504e-01);
-    w->var(dexpofit_NE+"_frac")->setVal(2.7871e-02);
-
 /*
     w->var(expofit+"_lambdaExpo")->setVal(-1.5);
     w->var(expofit+"_Nbkg")->setVal(massCut4->numEntries());
-    
+
     w->var(bernpoly2fit+"_pC")->setVal(10.);
     w->var(bernpoly2fit+"_p0")->setVal(1.);
     w->var(bernpoly2fit+"_p1")->setVal(-1.);
@@ -1067,8 +1104,8 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 */
     /*
      * Define S+B model
-     */ 
-/*  
+     */
+/*
     // BW + Expo
     RooAddPdf *sb1 = new RooAddPdf("sb1", "sb1", RooArgList(*w->pdf(bwfit), *w->pdf(expofit)));
 
@@ -1086,8 +1123,10 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     // CB + Double Expo
     RooAddPdf *sb6 = new RooAddPdf("sb6", "sb6", RooArgList(*w->pdf(cbfit), *w->pdf(dexpofit)));
 */
-    // DCB + Double Expo
-    RooAddPdf *sb7 = new RooAddPdf("sb7", "sb7", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(dexpofit_NE)), RooArgList(nsig, nbkg));
+    // s+b model
+    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws+"_NE")), RooArgList(nsig, nbkg));
+		// b-only model
+		RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws+"_NE")), RooArgList(nbkg_only));
 
     /*
      * Do S+B fit
@@ -1098,15 +1137,47 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     sb3->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
     sb4->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
     sb5->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"));
-*/    
+*/
     TStopwatch t;
-    t.Start();
-    RooFitResult *sb7res = sb7->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("m4"), RooFit::Timer(1), RooFit::Strategy(1), RooFit::NumCPU(32));
+		//b-only fit
+		t.Start();
+    //RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"), RooFit::Timer(1), RooFit::Strategy(0), RooFit::NumCPU(32));
+		RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"),RooFit::Strategy(0));
     t.Print();
+		if ( f_bkg == "single_exp" )
+		{
+			w->var(bkg_function_ws+"_lambdaExpo")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo")->getVal());
+		}
+		else if( f_bkg == "double_exp" )
+		{
+			std::cout << "HERE" << std::endl;
+			w->var(bkg_function_ws+"_lambdaExpo1")->setVal(2.4502e-02);
+			w->var(bkg_function_ws+"_lambdaExpo2")->setVal(-7.8504e-01);
+			w->var(bkg_function_ws+"_frac")->setVal(2.7871e-02);
+			std::cout << "HERE 2" << std::endl;
+		}
+		else if ( f_bkg == "single_pow" )
+		{
+			w->var(bkg_function_ws+"_alpha")->setVal(w->var(bkg_only_function_ws+"_alpha")->getVal());
+		}
+		else if ( f_bkg == "double_pow" )
+		{
+			w->var(bkg_function_ws+"_alpha1")->setVal(w->var(bkg_only_function_ws+"_alpha1")->getVal());
+			w->var(bkg_function_ws+"_alpha2")->setVal(w->var(bkg_only_function_ws+"_alpha2")->getVal());
+		}
+
+
+
+		//s+b fit
+    t.Start();
+    RooFitResult *sb7res = sb_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("JPsi"), RooFit::Timer(1), RooFit::Strategy(0));
+		//RooFitResult *sb7res;
+    t.Print();
+
 
     /*
      * Test S fit
-     */ 
+     */
 
 //    RooFitResult *bwfitres = w->pdf(bwfit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("sig"));
 //    RooFitResult *cbfitres = w->pdf(cbfit)->fitTo(*massCut4, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("sig"));
@@ -1130,10 +1201,10 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
      * Plot B fit
      */
     TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
-    RooPlot *frameB = mzd.frame(2.0, 3.5, 100);
-    massCut4->plotOn(frameB);
+    RooPlot *frameB = m_mumu.frame(1.2, 4.0, 100);
+    binned_tree_mass->plotOn(frameB);
 
-    w->pdf(dexpofit_NE)->plotOn(frameB, RooFit::Name("dexpofit_NE"), RooFit::LineColor(46), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
+    b_only_model->plotOn(frameB, RooFit::Name(f_bkg), RooFit::LineColor(kBlue), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
 //    w->pdf(dexpofit)->plotOn(frameB, RooFit::Name("dexpofit"), RooFit::LineColor(kRed));
 //    w->pdf(expofit)->plotOn(frameB, RooFit::Name("expofit"));
 //    w->pdf(bernpoly2fit_NE)->plotOn(frameB, RooFit::Name("bernpoly2fit_NE"), RooFit::LineColor(kGreen));
@@ -1163,8 +1234,8 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
      * Plot S fit
      */
     TCanvas *cs = new TCanvas("cs", "cs", 800, 700);
-    RooPlot *frameS = mzd.frame(2.0, 3.5, 100);
-    massCut4->plotOn(frameS);
+    RooPlot *frameS = m_mumu.frame(1.2, 4.0, 100);
+    binned_tree_mass->plotOn(frameS);
 
     w->pdf(dcbfit_NE)->plotOn(frameS, RooFit::Name("dcbfit_NE"), RooFit::LineColor(kGreen), RooFit::Range("sig"), RooFit::NormRange("sig"));
 //    w->pdf(bwfit)->plotOn(frameS, RooFit::Name("bwfit"));
@@ -1188,11 +1259,11 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
 
     /*
-     * Plot S+B fit   
+     * Plot S+B fit
      */
     TCanvas *csb = new TCanvas("csb", "csb", 800, 700);
-    RooPlot *frameSB = mzd.frame(2., 3.5, 100);
-    massCut4->plotOn(frameSB, RooFit::Name("data"));
+    RooPlot *frameSB = m_mumu.frame(1.2, 4.0, 100);
+    binned_tree_mass->plotOn(frameSB, RooFit::Name("data"));
 /*
     sb1->plotOn(frameSB, RooFit::Name("sb1"), RooFit::Range("m4"));
     SB2->plotOn(frameSB, RooFit::Name("sb2"), RooFit::Range("m4"), RooFit::LineColor(kGreen));
@@ -1201,16 +1272,16 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     sb5->plotOn(frameSB, RooFit::Name("sb5"), RooFit::Range("m4"), RooFit::LineColor(kBlack));
     sb6->plotOn(frameSB, RooFit::Name("sb6"), RooFit::Range("m4"), RooFit::LineColor(46));
 */
-    sb7->plotOn(frameSB, RooFit::Name("sb7"), RooFit::LineColor(40), RooFit::Range("m4"), RooFit::NormRange("m4"));
+    sb_model->plotOn(frameSB, RooFit::Name("sb7"), RooFit::LineColor(kBlue), RooFit::Range("JPsi"), RooFit::NormRange("JPsi"));
 
     csb->cd();
     frameSB->Draw();
     frameSB->SetTitle("");
-    
+
     TLegend *legSB = new TLegend(0.1,0.7,0.4,0.9);
     legSB->AddEntry(frameSB->findObject("sb7"), "dcb + dexpo");
 /*
-    legSB->AddEntry(frameSB->findObject("sb1"), "bw + expo");  
+    legSB->AddEntry(frameSB->findObject("sb1"), "bw + expo");
     legSB->AddEntry(frameSB->findObject("sb2"), "bw + dexpo");
     legSB->AddEntry(frameSB->findObject("sb3"), "cb + expo");
     legSB->AddEntry(frameSB->findObject("sb4"), "cb + bernpoly2");
@@ -1222,10 +1293,10 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     csb->SetLogy();
     csb->Update();
     csb->SaveAs("sb_JPsi_" + imgTag + ".png");
-    
+
     /*
      * Get fit output to txt file
-     */ 
+     */
     std::ofstream fit_file;
     fit_file.open(fitOutFile);
 
@@ -1236,7 +1307,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
         fit_file.close();
     }
-        
+
     else {
         std::cerr << "Unable to open fit output file." << std::endl;
     }
@@ -1263,12 +1334,12 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
  * Args
  *     sig_fit: signal shape
  *     bkg_fit: background shape
- *     treeSignal: TTree containing MC signal 
+ *     treeSignal: TTree containing MC signal
  *     treeData: TTree containing real data
  *     vtxCut: vertex cut to implement
  *     mass: mass of the dark photon
  *     lifetime: lifetime of the dark photon
- *     binNumber: number of bins 
+ *     binNumber: number of bins
  *     combineRootFileName: filename for the ROOT file containing the workspace.
  *     datacardName: filename for the data card
  *
@@ -1288,29 +1359,29 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	float bkg_weight = window_width / sideband_width;
 
 	RooWorkspace *ws = new RooWorkspace("ws", "");
-	RooRealVar mzd("mass", "m_{#mu#mu}", sideband_min, sideband_max, "GeV");
-	mzd.setMin(sideband_min);
-	mzd.setMax(sideband_max);
-	mzd.setUnit("GeV");
-	mzd.setBins(50);
-//	mzd.setBins(100);
-	mzd.setRange("low", sideband_min, window_min);
-	mzd.setRange("signal", window_min, window_max);
-	mzd.setRange("high", window_max, sideband_max);
-	mzd.setRange("full", sideband_min, sideband_max);
+	RooRealVar m_mumu("mass", "m_{#mu#mu}", sideband_min, sideband_max, "GeV");
+	m_mumu.setMin(sideband_min);
+	m_mumu.setMax(sideband_max);
+	m_mumu.setUnit("GeV");
+	m_mumu.setBins(50);
+//	m_mumu.setBins(100);
+	m_mumu.setRange("low", sideband_min, window_min);
+	m_mumu.setRange("signal", window_min, window_max);
+	m_mumu.setRange("high", window_max, sideband_max);
+	m_mumu.setRange("full", sideband_min, sideband_max);
 
 	//-------------------------------------------
 	// Import Data and Signal
 	// ------------------------------------------
-	
+
 	treeData->GetBranch("mass");
 	// Full Data
-	RooDataSet data("data", "", RooArgSet(mzd), RooFit::Import(*treeData));
+	RooDataSet data("data", "", RooArgSet(m_mumu), RooFit::Import(*treeData));
 	// Data in sidebands only
-	RooDataSet* dataSB = (RooDataSet*) data.reduce(RooFit::Name("dataSB"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("low"));
-	RooDataSet* dataHigh = (RooDataSet*) data.reduce(RooFit::Name("dataHigh"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("high"));
+	RooDataSet* dataSB = (RooDataSet*) data.reduce(RooFit::Name("dataSB"), RooFit::SelectVars(RooArgSet(m_mumu)), RooFit::CutRange("low"));
+	RooDataSet* dataHigh = (RooDataSet*) data.reduce(RooFit::Name("dataHigh"), RooFit::SelectVars(RooArgSet(m_mumu)), RooFit::CutRange("high"));
 	dataSB->append(*dataHigh);
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -1327,9 +1398,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 
 	treeSignal->GetBranch("mass");
 	// Full Data
-	RooDataSet dataSignal("dataSignal", "", RooArgSet(mzd), RooFit::Import(*treeSignal));
+	RooDataSet dataSignal("dataSignal", "", RooArgSet(m_mumu), RooFit::Import(*treeSignal));
 	// Data in window only
-	RooDataSet* dataSigWindow = (RooDataSet*) dataSignal.reduce(RooFit::Name("dataSigWindow"), RooFit::SelectVars(RooArgSet(mzd)), RooFit::CutRange("signal"));
+	RooDataSet* dataSigWindow = (RooDataSet*) dataSignal.reduce(RooFit::Name("dataSigWindow"), RooFit::SelectVars(RooArgSet(m_mumu)), RooFit::CutRange("signal"));
 
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
@@ -1357,28 +1428,28 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	chebPoly2Fit_output bkgChebPoly2Fit;
 	bernPoly3Fit_output bkgBernPoly3Fit;
 
-	TString tag_bkg;	
+	TString tag_bkg;
 
 	double Nbkg, Nbkg1, Nbkg2;
 
 	// Do Fitting
 	if (bkg_fit == "expo") {
 		// bkgExpoFit = {tag, sE_lambda_bkg, sE_Nbkg, npoints}
-		bkgExpoFit = SidebandExpoFit(dataSB, mzd, *ws);
+		bkgExpoFit = SidebandExpoFit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgExpoFit.tag;
 		Nbkg = bkgExpoFit.Nbkg;
 	}
 
 	else if (bkg_fit == "doubleExpo") {
 		// bkgDExpoFit = {tag, dE_lambda1_bkg, dE_lambda2_bkg, dE_Nbkg, npoints}
-		bkgDExpoFit = SidebandDExpoFit(dataSB, mzd, *ws);
+		bkgDExpoFit = SidebandDExpoFit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgDExpoFit.tag;
 		Nbkg = bkgDExpoFit.Nbkg;
 	}
 
 	else if (bkg_fit == "doubleExpoN1N2") {
 		// bkgDExpoFit = {tag, dE_lambda1_bkg, dE_lambda2_bkg, dE_Nbkg1,dE_Nbkg2,  npoints}
-		bkgDExpoN1N2Fit = SidebandDExpoN1N2Fit(dataSB, mzd, *ws);
+		bkgDExpoN1N2Fit = SidebandDExpoN1N2Fit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgDExpoN1N2Fit.tag;
 		Nbkg1 = bkgDExpoN1N2Fit.Nbkg1;
 		Nbkg2 = bkgDExpoN1N2Fit.Nbkg2;
@@ -1387,52 +1458,52 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 
 	else if (bkg_fit == "pow") {
 		// bkgPowFit = {tag, sP_alpha_bkg, sP_Nbkg, npoints}
-		bkgPowFit = SidebandPowFit(dataSB, mzd, *ws);
+		bkgPowFit = SidebandPowFit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgPowFit.tag;
 		Nbkg = bkgPowFit.Nbkg;
 	}
 
 	else if (bkg_fit == "doublePow") {
 		// bkgDPowFit = {tag, dP_alpha1_bkg, dP_alpha2_bkg, dP_Nbkg, npoints}
-		bkgDPowFit = SidebandDPowFit(dataSB, mzd, *ws);
+		bkgDPowFit = SidebandDPowFit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgDPowFit.tag;
 		Nbkg = bkgDPowFit.Nbkg;
 	}
 
 	else if (bkg_fit == "bernPoly2") {
 		// bkgBernPoly2Fit = {tag, poly2_pC_bkg, poly2_p0_bkg, poly2_p1_bkg, poly2_Nbkg, npoints}
-		bkgBernPoly2Fit = SidebandBernPoly2Fit(dataSB, mzd, *ws);
+		bkgBernPoly2Fit = SidebandBernPoly2Fit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgBernPoly2Fit.tag;
 		Nbkg = bkgBernPoly2Fit.Nbkg;
 	}
 
 	else if (bkg_fit == "chebPoly2") {
 		// bkgChebPoly2Fit = {tag, poly2_pC_bkg, poly2_p0_bkg, poly2_Nbkg, npoints}
-		bkgChebPoly2Fit = SidebandChebPoly2Fit(dataSB, mzd, *ws);
+		bkgChebPoly2Fit = SidebandChebPoly2Fit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgChebPoly2Fit.tag;
 		Nbkg = bkgChebPoly2Fit.Nbkg;
 	}
 
 	else if (bkg_fit == "bernPoly3") {
 		// bkgBernPoly3Fit = {tag, poly3_pC_bkg, poly3_p0_bkg, poly3_p1_bkg, poly3_p2_bkg, poly3_Nbkg, npoints}
-//		bkgBernPoly3Fit = SidebandBernPoly3Fit(&data, mzd, *ws);
-		bkgBernPoly3Fit = SidebandBernPoly3Fit(dataSB, mzd, *ws);
+//		bkgBernPoly3Fit = SidebandBernPoly3Fit(&data, m_mumu, *ws);
+		bkgBernPoly3Fit = SidebandBernPoly3Fit(dataSB, m_mumu, *ws);
 		tag_bkg = bkgBernPoly3Fit.tag;
 		Nbkg = bkgBernPoly3Fit.Nbkg;
 	}
 
-	
+
 	// Calculate Background Normalization
 	std::ostringstream ss1, ss2, ss3, ss4;
 	ss1 << sideband_min;
 	ss2 << sideband_max;
 	ss3 << window_min;
 	ss4 << window_max;
-	std::string s_sideband_min = ss1.str();	
-	std::string s_sideband_max = ss2.str();	
-	std::string s_window_min = ss3.str();	
-	std::string s_window_max = ss4.str();	
-	
+	std::string s_sideband_min = ss1.str();
+	std::string s_sideband_max = ss2.str();
+	std::string s_window_min = ss3.str();
+	std::string s_window_max = ss4.str();
+
 	std::string sidebandl = "mass>" + s_sideband_min + " && mass<" + s_window_min;
 	std::string sidebandr = "mass>" + s_window_max + " && mass<" + s_sideband_max;
 
@@ -1441,16 +1512,16 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	double N_sideband = dataSB->numEntries();
 	double npoints = data.numEntries();
 
-	RooAbsReal* N_signalRegion = ws->pdf(tag_bkg)->createIntegral(mzd, RooFit::NormSet(mzd), RooFit::Range("signal"));
-	RooAbsReal* N_sidebandRegion = ws->pdf(tag_bkg)->createIntegral(mzd, RooFit::NormSet(mzd),RooFit::Range("low,high"));
-	RooAbsReal* N_sidebandlow = ws->pdf(tag_bkg)->createIntegral(mzd, RooFit::NormSet(mzd),RooFit::Range("low"));
-	RooAbsReal* N_sidebandhigh = ws->pdf(tag_bkg)->createIntegral(mzd, RooFit::NormSet(mzd),RooFit::Range("high"));
-	double scale_bkg = 1. / (N_sidebandlow->getVal() + N_sidebandhigh->getVal());	
+	RooAbsReal* N_signalRegion = ws->pdf(tag_bkg)->createIntegral(m_mumu, RooFit::NormSet(m_mumu), RooFit::Range("signal"));
+	RooAbsReal* N_sidebandRegion = ws->pdf(tag_bkg)->createIntegral(m_mumu, RooFit::NormSet(m_mumu),RooFit::Range("low,high"));
+	RooAbsReal* N_sidebandlow = ws->pdf(tag_bkg)->createIntegral(m_mumu, RooFit::NormSet(m_mumu),RooFit::Range("low"));
+	RooAbsReal* N_sidebandhigh = ws->pdf(tag_bkg)->createIntegral(m_mumu, RooFit::NormSet(m_mumu),RooFit::Range("high"));
+	double scale_bkg = 1. / (N_sidebandlow->getVal() + N_sidebandhigh->getVal());
 //	double bkgYield = 36.812/0.333 * Nbkg * scale_bkg;
 //	double bkgYield = Nbkg * scale_bkg;
 	double bkgYield = 36.812/0.333 * Nbkg;
 //	double bkgYield = Nbkg;
-	
+
 	std::cout << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << "[INFO]:" << std::endl;
@@ -1468,9 +1539,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	std::cout << std::endl;
 
 	// Generate Toy Data
-	RooDataHist* data_toys = ws->pdf(tag_bkg)->generateBinned(mzd, bkgYield, RooFit::ExpectedData());	
-//	RooDataHist* data_toys = ws->pdf(tag_bkg)->generateBinned(mzd, Nbkg, RooFit::ExpectedData());	
-//	RooDataHist* data_toys = ws->pdf(tag_bkg)->generateBinned(mzd, npoints, RooFit::ExpectedData());	
+	RooDataHist* data_toys = ws->pdf(tag_bkg)->generateBinned(m_mumu, bkgYield, RooFit::ExpectedData());
+//	RooDataHist* data_toys = ws->pdf(tag_bkg)->generateBinned(m_mumu, Nbkg, RooFit::ExpectedData());
+//	RooDataHist* data_toys = ws->pdf(tag_bkg)->generateBinned(m_mumu, npoints, RooFit::ExpectedData());
 	data_toys->SetName("data_bin"+binNumber);
 	data.SetName("data_bin"+binNumber);
 
@@ -1484,7 +1555,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 
 	if (sig_fit == "bw") {
 		// sigBWFit = {tag, BW_mean_s, BW_width_s, BW_Ns, npoints}
-		sigBWFit = BreitWignerFit(mass, lifetime, &dataSignal, mzd, *ws);
+		sigBWFit = BreitWignerFit(mass, lifetime, &dataSignal, m_mumu, *ws);
 		tag_signal = sigBWFit.tag;
 	}
 
@@ -1493,7 +1564,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	// Constants
         double hbar = 6.582119514 * std::pow(10., -16.); // eV s
         double c = 299792458. * 1000.; // mm/s
-        double alpha_em = 0.0072973525664; // unitless 
+        double alpha_em = 0.0072973525664; // unitless
         double mu_mass = 105.658 * std::pow(10., 6.); // eV
         double pi = 3.1415927;
 
@@ -1510,7 +1581,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	double eps2 = 1./(lifetime * mass_eV) * (3.*hbar*c)/alpha_em * std::pow((1.+2.*mass_ratio2), -1.) * std::pow((1.-4.*mass_ratio2), -0.5);
 	double normalize = BEM * 3.* pi/8. * (mass_eV/mass_res) * (eps2/(alpha_em*(N_l+R_mu)));
 	double scale_sig = normalize / obs_sig_events;
-//	double signalYield = cut_sig_events * scale_sig; 
+//	double signalYield = cut_sig_events * scale_sig;
 */
 	double signalYield, sigYieldNoCut, N_sigNoCut, N_sigCut, eff;
 
@@ -1521,8 +1592,8 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
     // tau0 = 1mm, N_sigNoCut = 20149
     // tau0 = 10mm, N_sigNoCut = 14606
     // tau0 = 50mm, N_sigNoCut = 9122
-    // tau0 = 100mm, N_sigNoCut = 7654 
-    // tau0 = 1000mm, N_sigNoCut = 1498 
+    // tau0 = 100mm, N_sigNoCut = 7654
+    // tau0 = 1000mm, N_sigNoCut = 1498
 
 	if (vtxCut != "0") {
 		sigYieldNoCut = 1096.67;
@@ -1535,7 +1606,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	}
 
 	else {
-		signalYield = std::sqrt(bkgYield); 
+		signalYield = std::sqrt(bkgYield);
 	}
 
 	std::cout << std::endl;
@@ -1558,20 +1629,20 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	std::cout << "Signal Yield: " << signalYield << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << std::endl;
-	
+
 	//-------------------------------------------
 	// Plotting
 	// ------------------------------------------
-	MakePlot(mzd, *ws, binNumber, vtxCut.c_str(), tag_signal, tag_bkg, bkgYield, &dataSignal, &data, data_toys);
+	MakePlot(m_mumu, *ws, binNumber, vtxCut.c_str(), tag_signal, tag_bkg, bkgYield, &dataSignal, &data, data_toys);
 
-	ws->import(mzd);
+	ws->import(m_mumu);
 	ws->Write("w_sb");
 
 	//-------------------------------------------
 	// Preparation to Combine Input
 	// ------------------------------------------
 	RooWorkspace *combine_ws = new RooWorkspace("combine_ws", "");
-	
+
 	//-------------------------------------------
 	// Signal line shape
 	//-------------------------------------------
@@ -1583,7 +1654,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	std::cout << "[COMBINE INPUT SIGNAL]:" << std::endl;
 
 	if (sig_fit == "bw") {
-		combineSignal = MakeBreitWigner(true, "signal_bin" + binNumber, mass, lifetime, mzd, *combine_ws);
+		combineSignal = MakeBreitWigner(true, "signal_bin" + binNumber, mass, lifetime, m_mumu, *combine_ws);
 		double BW_mean_s = sigBWFit.mean;
 		double BW_width_s = sigBWFit.width;
 
@@ -1599,7 +1670,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 
 
 	RooRealVar *signal_norm = new RooRealVar(combineSignal + "_norm", "", signalYield);
-	
+
 	std::cout << "Signal Yield: " << signal_norm->getVal() << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << std::endl;
@@ -1617,7 +1688,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	std::cout << "[COMBINE INPUT BACKGROUND]:" << std::endl;
 
 	if (bkg_fit == "expo") {
-		combineBkg = MakeExpo(true, "bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeExpo(true, "bkg_bin" + binNumber, m_mumu, *combine_ws);
 		double sE_lambda_bkg = bkgExpoFit.lambda;
 
 		combine_ws->var(combineBkg + "_lambdaExpo")->setVal(sE_lambda_bkg);
@@ -1625,9 +1696,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 
 		std::cout << "EXPO lambda: " << sE_lambda_bkg << std::endl;
 	}
-	
+
 	else if (bkg_fit == "doubleExpo") {
-		combineBkg = MakeDoubleExpo(true, "bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeDoubleExpo(true, "bkg_bin" + binNumber, m_mumu, *combine_ws);
 
 		double dE_lambda1_bkg = bkgDExpoFit.lambda1;
 		double dE_lambda2_bkg = bkgDExpoFit.lambda2;
@@ -1641,9 +1712,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 		std::cout << "DEXPO lambda1: " << dE_lambda1_bkg << std::endl;
 		std::cout << "DEXPO lambda2: " << dE_lambda2_bkg << std::endl;
 	}
-		
+
 	else if (bkg_fit == "doubleExpoN1N2") {
-		combineBkg = MakeDoubleExpoN1N2("bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeDoubleExpoN1N2("bkg_bin" + binNumber, m_mumu, *combine_ws);
 
 		double dE_lambda1_bkg = bkgDExpoN1N2Fit.lambda1;
 		double dE_lambda2_bkg = bkgDExpoN1N2Fit.lambda2;
@@ -1657,9 +1728,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 		std::cout << "DEXPON1N2 lambda1: " << dE_lambda1_bkg << std::endl;
 		std::cout << "DEXPON1N2 lambda2: " << dE_lambda2_bkg << std::endl;
 	}
-		
+
 	else if (bkg_fit == "pow") {
-		combineBkg = MakeSinglePow("bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeSinglePow("bkg_bin" + binNumber, m_mumu, *combine_ws);
 
 		double sP_alpha_bkg = bkgPowFit.alpha;
 
@@ -1669,9 +1740,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 
 		std::cout << "POW alpha: " << sP_alpha_bkg << std::endl;
 	}
-		
+
 	else if (bkg_fit == "doublePow") {
-		combineBkg = MakeDoublePow("bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeDoublePow("bkg_bin" + binNumber, m_mumu, *combine_ws);
 
 		double dP_alpha1_bkg = bkgDPowFit.alpha1;
 		double dP_alpha2_bkg = bkgDPowFit.alpha2;
@@ -1685,9 +1756,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 		std::cout << "DPOW alpha1: " << dP_alpha1_bkg << std::endl;
 		std::cout << "DPOW alpha2: " << dP_alpha2_bkg << std::endl;
 	}
-		
+
 	else if (bkg_fit == "bernPoly2") {
-		combineBkg = MakeBernPoly2(true, "bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeBernPoly2(true, "bkg_bin" + binNumber, m_mumu, *combine_ws);
 
 		double poly2_pC_bkg = bkgBernPoly2Fit.pC;
 		double poly2_p0_bkg = bkgBernPoly2Fit.p0;
@@ -1705,9 +1776,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 		std::cout << "BERNPOLY2 p1: " << poly2_p1_bkg << std::endl;
 		std::cout << "BERNPOLY2 pC: " << poly2_pC_bkg << std::endl;
 	}
-		
+
 	else if (bkg_fit == "chebPoly2") {
-		combineBkg = MakeChebychevPoly2("bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeChebychevPoly2("bkg_bin" + binNumber, m_mumu, *combine_ws);
 
 		double chebPoly2_pC_bkg = bkgChebPoly2Fit.pC;
 		double chebPoly2_p0_bkg = bkgChebPoly2Fit.p0;
@@ -1721,9 +1792,9 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 		std::cout << "CHEBPOLY2 p0: " << chebPoly2_p0_bkg << std::endl;
 		std::cout << "CHEBPOLY2 pC: " << chebPoly2_pC_bkg << std::endl;
 	}
-		
+
 	else if (bkg_fit == "bernPoly3") {
-		combineBkg = MakeBernPoly3(true, "bkg_bin" + binNumber, mzd, *combine_ws);
+		combineBkg = MakeBernPoly3(true, "bkg_bin" + binNumber, m_mumu, *combine_ws);
 
 		double poly3_pC_bkg = bkgBernPoly3Fit.pC;
 		double poly3_p0_bkg = bkgBernPoly3Fit.p0;
@@ -1745,20 +1816,20 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 		std::cout << "BERNPOLY3 p2: " << poly3_p2_bkg << std::endl;
 		std::cout << "BERNPOLY3 pC: " << poly3_pC_bkg << std::endl;
 	}
-		
+
 	RooRealVar *bkg_norm = new RooRealVar(combineBkg + "_norm", "", bkgYield);
 	std::cout << "Background Yield: " << bkg_norm->getVal() << std::endl;
 	std::cout << "================================================================================" << std::endl;
 	std::cout << std::endl;
-	
+
         combine_ws->import(*bkg_norm);
-	
+
 	//-------------------------------------------
 	// Import Dataset
 	//-------------------------------------------
 	//combine_ws->import(*data_toys);
 	combine_ws->import(data); //import real data
-	
+
 	combine_ws->Write("combineWS");
 	file->cd();
 	file->Close();
@@ -1783,8 +1854,7 @@ RooWorkspace *MakeDataCard(std::string sig_fit, std::string bkg_fit, TTree* tree
 	ofs << "process\t\t\t\t\t\t0\t\t1\n";
 	ofs << "rate\t\t\t\t\t\t1\t\t1\n";
 	ofs << "----------------------------------------------------------------------------------------\n";
-//	ofs << "CMS_Lumi\t\t\tlnN\t\t1.026\t\t1.026\t\t-\n";	
+//	ofs << "CMS_Lumi\t\t\tlnN\t\t1.026\t\t1.026\t\t-\n";
 	ofs.close();
 	return ws;
 }
-	

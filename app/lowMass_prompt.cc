@@ -25,28 +25,28 @@ int main(int argc, char* argv[]) {
         std::cerr << "Flags:" << std::endl;
         std::cerr << "  -help :" << std::endl;
         std::cerr << "      Displays this help message." << std::endl;
-    
+
         std::cerr << std::endl;
-        std::cerr << "  -tchain :" << std::endl; 
+        std::cerr << "  -tchain :" << std::endl;
         std::cerr << "      Specifies to use TChain to get TTree from many files." << std::endl;
 
         std::cerr << std::endl;
-        std::cerr << "  -inputFiles :" << std::endl; 
+        std::cerr << "  -inputFiles :" << std::endl;
         std::cerr << "      Path to input file to use." << std::endl;
         std::cerr << "      If non specified, uses default file." << std::endl;
 
         std::cerr << std::endl;
-        std::cerr << "  -fitOutFile :" << std::endl; 
+        std::cerr << "  -fitOutFile :" << std::endl;
         std::cerr << "      Path to output txt file to write fit results to." << std::endl;
         std::cerr << "      If non specified, uses default file." << std::endl;
-        
+
         std::cerr << std::endl;
-        std::cerr << "  -imgtag :" << std::endl; 
+        std::cerr << "  -imgtag :" << std::endl;
         std::cerr << "      Tag to identify image files, etc." << std::endl;
         std::cerr << "      If non specified, uses default tag." << std::endl;
-        
+
         std::cerr << std::endl;
-        std::cerr << "  -totalEntries :" << std::endl; 
+        std::cerr << "  -totalEntries :" << std::endl;
         std::cerr << "      Specifies to use the number of entries in the range 0 - 10 GeV" << std::endl;
         std::cerr << "      from the input file for initial values of nsig and nbkg." << std::endl;
         std::cerr << "      If non specified, uses the number of entries in JPsi range." << std::endl;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
     else {
         std::cout << "Input File: " << inputFiles << std::endl;
     }
-    
+
     // Fit output file
     std::string fitOutFile = ParseCommandLine( argc, argv, "-fitOutFile=" );
 
@@ -105,7 +105,7 @@ int main(int argc, char* argv[]) {
     if (totalEntries_ != "") {
         totalEntries = true;
     }
-    
+
     // For removing the 'memory-resident TTree' errors
     TFile *temp = new TFile("temp.root", "recreate");
     TTree *tree;
@@ -119,17 +119,14 @@ int main(int argc, char* argv[]) {
         // Get TTree
         TFile *file = new TFile(inputFiles.c_str(), "read");
         temp->cd();
-        tree = (TTree*) file->Get("tree"); 
+        tree = (TTree*) file->Get("tree");
     }
-   
+
     //tree->Print();
 
     // Categories
     TString cut = "";
 
     // Do S+B fitting
-    SplusB_fit_test(tree->CopyTree(cut), totalEntries, fitOutFile.c_str(), imgTag.c_str());
-}       
-    
-    
-
+    SplusB_fit_test(tree->CopyTree(cut), totalEntries, fitOutFile.c_str(), imgTag.c_str(), "double_pow");
+}

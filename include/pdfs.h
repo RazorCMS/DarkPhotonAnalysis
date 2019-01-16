@@ -23,9 +23,9 @@ TString MakeDoubleExpo(bool extended, TString tag, RooRealVar &mzd, RooWorkspace
 TString MakeDoubleExpo_NE(TString tag, RooRealVar &mzd, RooWorkspace &w);
 TString MakeDoubleExpoN1N2(TString tag, RooRealVar &mzd, RooWorkspace &w);
 
-TString MakeSinglePow(TString tag, RooRealVar &mzd, RooWorkspace &w);
+TString MakeSinglePow(TString tag, RooRealVar &mzd, RooWorkspace &w, bool ext = true);
 
-TString MakeDoublePow(TString tag, RooRealVar &mzd,RooWorkspace &w);
+TString MakeDoublePow(TString tag, RooRealVar &mzd,RooWorkspace &w, bool ext = true);
 
 TString MakeBernPoly2(bool extended, TString tag, RooRealVar& mzd, RooWorkspace &w);
 TString MakeBernPoly2_NE(TString tag, RooRealVar& mzd, RooWorkspace &w);

@@ -92,7 +92,7 @@ struct bernPoly3Fit_output {
 };
 
 //int SplusB_fit(TTree* tree, bool testS=false, bool testB=false);
-int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TString imgTag);
+int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TString imgTag, TString f_bkg = "double_exp");
 
 bwFit_output BreitWignerFit(double mass, double lifetime, RooDataSet *data, RooRealVar &mzd, RooWorkspace &w);
 
