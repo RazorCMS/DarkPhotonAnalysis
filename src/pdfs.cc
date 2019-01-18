@@ -332,26 +332,29 @@ TString MakeDoublePow(TString tag, RooRealVar &mzd, RooWorkspace &w, bool ext) {
 	RooRealVar *alpha1  = new RooRealVar(tag+"_alpha1", "#alpha_{1}", -1.0,"");
 	RooRealVar *alpha2  = new RooRealVar(tag+"_alpha2", "#alpha_{2}", -0.5,"");
 	RooRealVar *f       = new RooRealVar(tag+"_f", "f", 0.5, 0.0, 1.0);
-  alpha1->setConstant(kFALSE);
+    alpha1->setConstant(kFALSE);
 	alpha2->setConstant(kFALSE);
 
 	RooGenericPdf *pow1 = new RooGenericPdf(tag+"_pow1", "", "@0^@1", RooArgList(mzd, *alpha1));
 	RooGenericPdf *pow2 = new RooGenericPdf(tag+"_pow2", "", "@0^@1", RooArgList(mzd, *alpha2));
-  if ( ext )
-  {
-    RooRealVar *Nbkg    = new RooRealVar(tag+"_Nbkg","N_{bkg}", 1, "events");
-    RooAddPdf *doublePow = new RooAddPdf(tag+"_NE", "", *pow1, *pow2, *f);
-  	RooAddPdf *ext_doublePow = new RooAddPdf(tag, "ext_dpow", RooArgList(*doublePow), RooArgList(*Nbkg));
-  	Nbkg->setConstant(kFALSE);
-    w.import(*ext_doublePow);
-  }
-  else
-  {
-    RooAddPdf *doublePow = new RooAddPdf(tag, "", *pow1, *pow2, *f);
-    w.import(*doublePow);
-  }
-  alpha1->setRange(-100,0);
-  alpha2->setRange(-100,0);
+    
+    if ( ext )
+    {
+        RooRealVar *Nbkg    = new RooRealVar(tag+"_Nbkg","N_{bkg}", 1, "events");
+        RooAddPdf *doublePow = new RooAddPdf(tag+"_NE", "", *pow1, *pow2, *f);
+        RooAddPdf *ext_doublePow = new RooAddPdf(tag, "ext_dpow", RooArgList(*doublePow), RooArgList(*Nbkg));
+        Nbkg->setConstant(kFALSE);
+        w.import(*ext_doublePow);
+    }
+
+    else
+    {
+        RooAddPdf *doublePow = new RooAddPdf(tag, "", *pow1, *pow2, *f);
+        w.import(*doublePow);
+    }
+
+    alpha1->setRange(-100,0);
+    alpha2->setRange(-100,0);
 
 	return tag;
 };
@@ -386,20 +389,20 @@ TString MakeBernPoly2(bool extended, TString tag, RooRealVar& mzd, RooWorkspace 
 	p0->setConstant(kFALSE);
 	p1->setConstant(kFALSE);
 
-        if (extended) {
-	    RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
-	    Nbkg->setConstant(kFALSE);
-        //	RooBernstein *bern = new RooBernstein(tag+"_poly2", "", mzd, RooArgList(*pCmod, *p0mod, *p1mod));
-            RooBernstein *bern = new RooBernstein(tag+"_NE", "", mzd, RooArgList(*pC, *p0, *p1));
-            RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly2", RooArgList(*bern), RooArgList(*Nbkg));
-	    w.import(*ext_bern);
-        }
+    if (extended) {
+    RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
+    Nbkg->setConstant(kFALSE);
+    //	RooBernstein *bern = new RooBernstein(tag+"_poly2", "", mzd, RooArgList(*pCmod, *p0mod, *p1mod));
+        RooBernstein *bern = new RooBernstein(tag+"_NE", "", mzd, RooArgList(*pC, *p0, *p1));
+        RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly2", RooArgList(*bern), RooArgList(*Nbkg));
+    w.import(*ext_bern);
+    }
 
-        else {
-        //	RooBernstein *bern = new RooBernstein(tag+"_poly2", "", mzd, RooArgList(*pCmod, *p0mod, *p1mod));
-            RooBernstein *bern = new RooBernstein(tag+"_NE", "", mzd, RooArgList(*pC, *p0, *p1));
-            w.import(*bern);
-        }
+    else {
+    //	RooBernstein *bern = new RooBernstein(tag+"_poly2", "", mzd, RooArgList(*pCmod, *p0mod, *p1mod));
+        RooBernstein *bern = new RooBernstein(tag+"_NE", "", mzd, RooArgList(*pC, *p0, *p1));
+        w.import(*bern);
+    }
 
 	return tag;
 };
@@ -441,20 +444,20 @@ TString MakeBernPoly3(bool extended, TString tag, RooRealVar &mzd, RooWorkspace 
 	p1->setConstant(kFALSE);
 	p2->setConstant(kFALSE);
 
-        if (extended) {
-	    RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
-            Nbkg->setConstant(kFALSE);
-        //	RooBernstein *bern = new RooBernstein(tag+"_poly3","", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod));
-            RooBernstein *bern = new RooBernstein(tag+"_poly3","", mzd, RooArgList(*pC,*p0,*p1,*p2));
-            RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly3", RooArgList(*bern), RooArgList(*Nbkg));
-	    w.import(*ext_bern);
-        }
+    if (extended) {
+    RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
+        Nbkg->setConstant(kFALSE);
+    //	RooBernstein *bern = new RooBernstein(tag+"_poly3","", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod));
+        RooBernstein *bern = new RooBernstein(tag+"_poly3","", mzd, RooArgList(*pC,*p0,*p1,*p2));
+        RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly3", RooArgList(*bern), RooArgList(*Nbkg));
+    w.import(*ext_bern);
+    }
 
-        else {
-        //	RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod));
-            RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pC,*p0,*p1,*p2));
-            w.import(*bern);
-        }
+    else {
+    //	RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod));
+        RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pC,*p0,*p1,*p2));
+        w.import(*bern);
+    }
 
 	return tag;
 };
@@ -498,30 +501,30 @@ TString MakeBernPoly4(bool extended, TString tag, RooRealVar &mzd, RooWorkspace 
 	RooFormulaVar *p3mod = new RooFormulaVar(tag+"_p3mod","@0*@0",*p3);
 
 	pC->setConstant(kFALSE);
-  pC->setRange(-1,1);
+    pC->setRange(-1,1);
 	p0->setConstant(kFALSE);
-  p0->setRange(-1,1);
+    p0->setRange(-1,1);
 	p1->setConstant(kFALSE);
-  p1->setRange(-1,1);
+    p1->setRange(-1,1);
 	p2->setConstant(kFALSE);
-  p2->setRange(-1,1);
+    p2->setRange(-1,1);
 	p3->setConstant(kFALSE);
-  p3->setRange(-1,1);
+    p3->setRange(-1,1);
 
-        if (extended) {
-            RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
-	    Nbkg->setConstant(kFALSE);
-            //	RooBernstein *bern = new RooBernstein(tag+"_poly4","", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod));
-            RooBernstein *bern = new RooBernstein(tag+"_poly4","", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3));
-            RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly4", RooArgList(*bern), RooArgList(*Nbkg));
-	    w.import(*ext_bern);
-        }
+    if (extended) {
+        RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
+        Nbkg->setConstant(kFALSE);
+        //	RooBernstein *bern = new RooBernstein(tag+"_poly4","", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod));
+        RooBernstein *bern = new RooBernstein(tag+"_poly4","", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3));
+        RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly4", RooArgList(*bern), RooArgList(*Nbkg));
+        w.import(*ext_bern);
+    }
 
-        else {
-            //	RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod));
-            RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3));
-            w.import(*bern);
-        }
+    else {
+        //	RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod));
+        RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3));
+        w.import(*bern);
+    }
 
 	return tag;
 };
@@ -548,20 +551,20 @@ TString MakeBernPoly5(bool extended, TString tag, RooRealVar &mzd, RooWorkspace 
 	p3->setConstant(kFALSE);
 	p4->setConstant(kFALSE);
 
-        if (extended) {
-            RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
-	    Nbkg->setConstant(kFALSE);
-            //	RooBernstein *bern = new RooBernstein(tag+"_poly5","", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod, *p4mod));
-            RooBernstein *bern = new RooBernstein(tag+"_poly5","", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3,*p4));
-            RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly5", RooArgList(*bern), RooArgList(*Nbkg));
-	    w.import(*ext_bern);
-        }
+    if (extended) {
+        RooRealVar *Nbkg   = new RooRealVar(tag+"_Nbkg","N_{bkg}",1,"events");
+        Nbkg->setConstant(kFALSE);
+        //	RooBernstein *bern = new RooBernstein(tag+"_poly5","", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod, *p4mod));
+        RooBernstein *bern = new RooBernstein(tag+"_poly5","", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3,*p4));
+        RooAddPdf *ext_bern = new RooAddPdf(tag,"ext_poly5", RooArgList(*bern), RooArgList(*Nbkg));
+    w.import(*ext_bern);
+    }
 
-        else {
-            //	RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod, *p4mod));
-            RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3,*p4));
-            w.import(*bern);
-        }
+    else {
+        //	RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pCmod,*p0mod,*p1mod,*p2mod, *p3mod, *p4mod));
+        RooBernstein *bern = new RooBernstein(tag,"", mzd, RooArgList(*pC,*p0,*p1,*p2,*p3,*p4));
+        w.import(*bern);
+    }
 
 	return tag;
 };

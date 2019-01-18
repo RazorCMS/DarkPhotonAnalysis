@@ -837,7 +837,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
     // Test fitting JPsi first
     m_mumu.setRange("m4", 2.0, 3.5);
-		// Test fitting JPsi first
+    // Test fitting JPsi first
     m_mumu.setRange("JPsi", 1.2, 3.6);
 
     // Test fitting background only
@@ -850,15 +850,16 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     // Dataset: TTree
     tree->GetBranch("mass");
     RooDataSet *treemass = new RooDataSet("mass", "", RooArgSet(m_mumu), RooFit::Import(*tree));
-		//Defining Binned data set
-		m_mumu.setBins(1000);
-		RooDataHist* binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu), *treemass);
+
+    //Defining Binned data set
+	m_mumu.setBins(1000);
+	RooDataHist *binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu), *treemass);
     delete tree;
-		//delete treemass;
 
     // mass around JPsi
     RooDataSet *massCut4 = (RooDataSet*) treemass->reduce(RooFit::Name("massCut4"), RooFit::SelectVars(RooArgSet(m_mumu)), RooFit::CutRange("m4"));
-		delete treemass;
+    delete treemass;
+    
     // Some index for naming; remnant from previous code but I think won't remove for now.
     int i = 4;
 
@@ -867,6 +868,8 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
      * "_NE" means non-extended PDF.
      */
     TString dcbfit_NE = MakeDoubleCB(false, Form("DCB_NE_sig%d", i), mass4, m_mumu, *w);
+    TString sig_only_function_ws = MakeDoubleCB(false, Form("dcb_sig_only_%d", i), mass4, m_mumu, *w);
+
 /*
     TString bwfit = MakeBreitWigner(true, Form("BW_sig%d", i), mass4, 0.001, m_mumu, *w);
     TString bwfit_NE = MakeBreitWigner(false, Form("BW_sig%d", i), mass4, 0.001, m_mumu, *w);
@@ -879,49 +882,51 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
      * Define background shape
      * "_NE" means non-extended PDF.
      */
-		 TString bkg_function_ws;
-		 TString bkg_only_function_ws;
-		 if( f_bkg == "single_exp" )
-		 {
-			 bkg_function_ws = MakeExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
-			 bkg_only_function_ws = MakeExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
-		 }
-		 else if( f_bkg == "double_exp" )
-		 {
-			 bkg_function_ws = MakeDoubleExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
-			 bkg_only_function_ws = MakeDoubleExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
-		 }
-		 else if( f_bkg == "single_pow" )
-		 {
-			 bkg_function_ws = MakeSinglePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
-			 bkg_only_function_ws = MakeSinglePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
-		 }
-		 else if( f_bkg == "double_pow" )
-		 {
-			 bkg_function_ws = MakeDoublePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
-			 bkg_only_function_ws = MakeDoublePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
-		 }
-		 else if ( f_bkg == "poly2" )
-		 {
-			 bkg_function_ws = MakeBernPoly2_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
-			 bkg_only_function_ws = MakeBernPoly2_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
-		 }
-		 else if ( f_bkg == "poly3" )
-		 {
-			 bkg_function_ws = MakeBernPoly3_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
-			 bkg_only_function_ws = MakeBernPoly3_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
-		 }
-		 else if ( f_bkg == "poly4" )
-		 {
-			 bkg_function_ws = MakeBernPoly4(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
-			 bkg_only_function_ws = MakeBernPoly4(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
-		 }
+     TString bkg_function_ws;
+     TString bkg_only_function_ws;
+    
+    if( f_bkg == "single_exp" )
+     {
+         bkg_function_ws = MakeExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if( f_bkg == "double_exp" )
+     {
+         bkg_function_ws = MakeDoubleExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeDoubleExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if( f_bkg == "single_pow" )
+     {
+         bkg_function_ws = MakeSinglePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
+         bkg_only_function_ws = MakeSinglePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
+     }
+     else if( f_bkg == "double_pow" )
+     {
+         bkg_function_ws = MakeDoublePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
+         bkg_only_function_ws = MakeDoublePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
+     }
+     else if ( f_bkg == "poly2" )
+     {
+         bkg_function_ws = MakeBernPoly2_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeBernPoly2_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if ( f_bkg == "poly3" )
+     {
+         bkg_function_ws = MakeBernPoly3_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeBernPoly3_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if ( f_bkg == "poly4" )
+     {
+         bkg_function_ws = MakeBernPoly4(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeBernPoly4(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
 
 
     // V3 - for finding scaling of nentries with time taken to fit
     RooRealVar nsig("nsig", "", massCut4->numEntries() / 5);
     RooRealVar nbkg("nbkg", "", massCut4->numEntries());
-		RooRealVar nbkg_only("nbkg_only", "", massCut4->numEntries());
+    RooRealVar nsig_only("nsig_only", "", massCut4->numEntries() / 5);
+    RooRealVar nbkg_only("nbkg_only", "", massCut4->numEntries());
 
     /*
      * option 'totalEntries' specifies whether to use total number of entries
@@ -939,7 +944,8 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
     nsig.setConstant(kFALSE);
     nbkg.setConstant(kFALSE);
-		nbkg_only.setConstant(kFALSE);
+    nsig_only.setConstant(kFALSE);
+    nbkg_only.setConstant(kFALSE);
 
     /*
      * Set Parameters
@@ -1018,73 +1024,77 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
     // s+b model
     RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws)), RooArgList(nsig, nbkg));
-		// b-only model
-		RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws)), RooArgList(nbkg_only));
+    
+    // s-only model
+    RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
 
+    // b-only model
+    RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws)), RooArgList(nbkg_only));
 
+    // b-only fit
     TStopwatch t;
-		//b-only fit
-		t.Start();
-    //RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"), RooFit::Timer(1), RooFit::Strategy(0), RooFit::NumCPU(32));
-		RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"),RooFit::Strategy(0));
-		t.Print();
-		/*
-		 * Plot B fit
-		 */
-		TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
-		RooPlot *frameB = m_mumu.frame(1.2, 4.0, 100);
-		binned_tree_mass->plotOn(frameB);
-
-		b_only_model->plotOn(frameB, RooFit::Name(f_bkg), RooFit::LineColor(kBlue), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
-		frameB->Draw();
-		frameB->SetTitle("");
-		TLegend *legB = new TLegend(0.1,0.7,0.4,0.9);
-		legB->AddEntry(frameB->findObject("dexpofit_NE"), "dexpo_NE");
-		legB->Draw();
-		cb->SetLogy();
-		cb->Update();
-		cb->SaveAs("b_JPsi_" + f_bkg + "_"  + imgTag + ".png");
-
-
-		//------------------------------------------------------
-		//Set S+B initial parameters to those of the b-only fit
-		//------------------------------------------------------
-		if ( f_bkg == "single_exp" )
-		{
-			w->var(bkg_function_ws+"_lambdaExpo")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo")->getVal());
-		}
-		else if( f_bkg == "double_exp" )
-		{
-			std::cout << "HERE" << std::endl;
-			w->var(bkg_function_ws+"_lambdaExpo1")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo1")->getVal());
-			w->var(bkg_function_ws+"_lambdaExpo2")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo2")->getVal());
-			w->var(bkg_function_ws+"_frac")->setVal(w->var(bkg_only_function_ws+"_frac")->getVal());
-			std::cout << "HERE 2" << std::endl;
-		}
-		else if ( f_bkg == "single_pow" )
-		{
-			w->var(bkg_function_ws+"_alpha")->setVal(w->var(bkg_only_function_ws+"_alpha")->getVal());
-		}
-		else if ( f_bkg == "double_pow" )
-		{
-			w->var(bkg_function_ws+"_alpha1")->setVal(w->var(bkg_only_function_ws+"_alpha1")->getVal());
-			w->var(bkg_function_ws+"_alpha2")->setVal(w->var(bkg_only_function_ws+"_alpha2")->getVal());
-		}
-
-
-		//------------
-		//s+b fit
-		//-------------
     t.Start();
-    RooFitResult *sb7res = sb_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("JPsi"), RooFit::Timer(1), RooFit::Strategy(0));
-		//RooFitResult *sb7res;
+    //RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"), RooFit::Timer(1), RooFit::Strategy(0), RooFit::NumCPU(32));
+    RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"),RooFit::Strategy(0));
     t.Print();
+    
+    /*
+     * Plot B fit
+     */
+    TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
+    RooPlot *frameB = new RooPlot("frameB", "frameB", m_mumu, 1.2, 4.0, 100);
+    binned_tree_mass->plotOn(frameB);
 
+    b_only_model->plotOn(frameB, RooFit::Name(f_bkg), RooFit::LineColor(kBlue), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
+    frameB->Draw();
+    frameB->SetTitle("");
+    TLegend *legB = new TLegend(0.1,0.7,0.4,0.9);
+    legB->AddEntry(frameB->findObject(f_bkg), f_bkg);
+    legB->Draw();
+    cb->SetLogy();
+    cb->Update();
+    cb->SaveAs("b_JPsi_" + f_bkg + "_"  + imgTag + ".png");
+
+
+    //------------------------------------------------------
+    //Set S+B initial parameters to those of the b-only fit
+    //------------------------------------------------------
+    if ( f_bkg == "single_exp" )
+    {
+        w->var(bkg_function_ws+"_lambdaExpo")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo")->getVal());
+    }
+    else if( f_bkg == "double_exp" )
+    {
+        std::cout << "HERE" << std::endl;
+        w->var(bkg_function_ws+"_lambdaExpo1")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo1")->getVal());
+        w->var(bkg_function_ws+"_lambdaExpo2")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo2")->getVal());
+        w->var(bkg_function_ws+"_frac")->setVal(w->var(bkg_only_function_ws+"_frac")->getVal());
+        std::cout << "HERE 2" << std::endl;
+    }
+    else if ( f_bkg == "single_pow" )
+    {
+        w->var(bkg_function_ws+"_alpha")->setVal(w->var(bkg_only_function_ws+"_alpha")->getVal());
+    }
+    else if ( f_bkg == "double_pow" )
+    {
+        w->var(bkg_function_ws+"_alpha1")->setVal(w->var(bkg_only_function_ws+"_alpha1")->getVal());
+        w->var(bkg_function_ws+"_alpha2")->setVal(w->var(bkg_only_function_ws+"_alpha2")->getVal());
+    }
+
+
+    //------------
+    //s+b fit
+    //-------------
+    t.Start();
+    RooFitResult *sb_fit = sb_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("JPsi"), RooFit::Timer(1), RooFit::Strategy(0));
+    //RooFitResult *sb_fit;
+    t.Print();
+    
     /*
      * Plot S fit
      */
     TCanvas *cs = new TCanvas("cs", "cs", 800, 700);
-    RooPlot *frameS = m_mumu.frame(1.2, 4.0, 100);
+    RooPlot *frameS = new RooPlot("frameS", "frameS", m_mumu, 1.2, 4.0, 100);
     binned_tree_mass->plotOn(frameS);
 
     w->pdf(dcbfit_NE)->plotOn(frameS, RooFit::Name("dcbfit_NE"), RooFit::LineColor(kGreen), RooFit::Range("sig"), RooFit::NormRange("sig"));
@@ -1112,7 +1122,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
      * Plot S+B fit
      */
     TCanvas *csb = new TCanvas("csb", "csb", 800, 700);
-    RooPlot *frameSB = m_mumu.frame(1.2, 4.0, 100);
+    RooPlot *frameSB = new RooPlot("frameSB", "frameSB", m_mumu, 1.2, 4.0, 100);
     binned_tree_mass->plotOn(frameSB, RooFit::Name("data"));
 /*
     sb1->plotOn(frameSB, RooFit::Name("sb1"), RooFit::Range("m4"));
@@ -1122,14 +1132,14 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     sb5->plotOn(frameSB, RooFit::Name("sb5"), RooFit::Range("m4"), RooFit::LineColor(kBlack));
     sb6->plotOn(frameSB, RooFit::Name("sb6"), RooFit::Range("m4"), RooFit::LineColor(46));
 */
-    sb_model->plotOn(frameSB, RooFit::Name("sb7"), RooFit::LineColor(kBlue), RooFit::Range("JPsi"), RooFit::NormRange("JPsi"));
+    sb_model->plotOn(frameSB, RooFit::Name("sb_plot"), RooFit::LineColor(kBlue), RooFit::Range("JPsi"), RooFit::NormRange("JPsi"));
 
     csb->cd();
     frameSB->Draw();
     frameSB->SetTitle("");
 
     TLegend *legSB = new TLegend(0.1,0.7,0.4,0.9);
-    legSB->AddEntry(frameSB->findObject("sb7"), "dcb + dexpo");
+    legSB->AddEntry(frameSB->findObject("sb_plot"), "dcb + " + f_bkg);
 /*
     legSB->AddEntry(frameSB->findObject("sb1"), "bw + expo");
     legSB->AddEntry(frameSB->findObject("sb2"), "bw + dexpo");
@@ -1151,9 +1161,9 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     fit_file.open(fitOutFile);
 
     if (fit_file.is_open()) {
-        sb7res->printMultiline(fit_file, 0, kTRUE);
-        fit_file << "Number of NLL evaluations with problems: " << sb7res->numInvalidNLL() << std::endl;
-        fit_file << "chi2 / ndof: " << frameSB->chiSquare("sb7", "data") << std::endl;
+        sb_fit->printMultiline(fit_file, 0, kTRUE);
+        fit_file << "Number of NLL evaluations with problems: " << sb_fit->numInvalidNLL() << std::endl;
+        fit_file << "chi2 / ndof: " << frameSB->chiSquare("sb_plot", "data") << std::endl;
 
         fit_file.close();
     }
@@ -1163,11 +1173,14 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     }
 
     // Import information to RooWorkspace
-    w->import(*massCut4);
-    w->import(*sb7res);
+    w->import(*binned_tree_mass);
+    w->import(*sb_model);
+    w->import(*b_only_model);
+    w->import(*sb_fit);
+    w->import(*b_only_fit);
     w->import(nsig);
     w->import(nbkg);
-    w->import(*frameSB);
+    w->import(nbkg_only);
 
     // Write file
     w->Write("LowMassFits");

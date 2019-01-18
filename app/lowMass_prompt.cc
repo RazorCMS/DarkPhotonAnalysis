@@ -46,6 +46,11 @@ int main(int argc, char* argv[]) {
         std::cerr << "      If non specified, uses default tag." << std::endl;
 
         std::cerr << std::endl;
+        std::cerr << "  -f_bkg :" << std::endl;
+        std::cerr << "      Specifies bkg fit function. Options are:" << std::endl;
+        std::cerr << "          single_exp  double_exp  single_pow  double_pow  poly2   poly3   poly4" << std::endl;
+
+        std::cerr << std::endl;
         std::cerr << "  -totalEntries :" << std::endl;
         std::cerr << "      Specifies to use the number of entries in the range 0 - 10 GeV" << std::endl;
         std::cerr << "      from the input file for initial values of nsig and nbkg." << std::endl;
