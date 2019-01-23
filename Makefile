@@ -1,11 +1,11 @@
 CXX = $(shell root-config --cxx)
 LD = $(shell root-config --ld)
-
+export LD_RUN_PATH=$(PWD)/include
 PWD = $(shell pwd)
 TOOLS = $(PWD)/tools
 
 CPPFLAGS := $(shell root-config --cflags) -I$(PWD)/include -I$(TOOLS)/include
-LDFLAGS := $(shell root-config --glibs) $(STDLIBDIR) -lRooFit -lRooFitCore -L$(PWD)/include
+LDFLAGS := $(shell root-config --glibs) $(STDLIBDIR) -lRooFit -lRooFitCore -L$(PWD)/include/ -lCustomPdfs
 
 CPPFLAGS += -g -std=c++1y
 

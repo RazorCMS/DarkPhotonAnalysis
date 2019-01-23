@@ -53,7 +53,7 @@
 // LOCAL INCLUDES
 #include "fitDarkphoton.h"
 #include "pdfs.h"
-
+#include "CustomPdfs.hh"
 // Margins
 const float leftMargin   = 0.12;
 const float rightMargin  = 0.05;
@@ -838,22 +838,26 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     // Test fitting JPsi first
     m_mumu.setRange("m4", 2.0, 3.5);
     // Test fitting JPsi first
-    m_mumu.setRange("JPsi", 1.2, 3.6);
-
+    //m_mumu.setRange("JPsi", 1.2, 3.6);
+    m_mumu.setRange("JPsi", 1.5, 3.5);
     // Test fitting background only
-    m_mumu.setRange("low", 1.2, 2.8);
-    m_mumu.setRange("high", 3.25, 3.6);
+    //m_mumu.setRange("low", 1.2, 2.8);
+    //m_mumu.setRange("high", 3.25, 3.6);
+    m_mumu.setRange("low", 1.5, 2.8);
+    m_mumu.setRange("high", 3.25, 3.5);
 
     // Test fitting signal only
-    m_mumu.setRange("sig", 2.9, 3.225);
+    m_mumu.setRange("sig", 2.9, 3.3);
 
     // Dataset: TTree
     tree->GetBranch("mass");
     RooDataSet *treemass = new RooDataSet("mass", "", RooArgSet(m_mumu), RooFit::Import(*tree));
-
+    TFile* Hist_file = TFile::Open("/mnt/hadoop/store/user/idutta/DarkPhoton/Samples/outHist_18Jan2019/massHist_Full.root");
+    TH1D *Jpsi_hist=(TH1D*) Hist_file->Get("mass_1p5To3p5"); ;
     //Defining Binned data set
-	m_mumu.setBins(1000);
-	RooDataHist *binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu), *treemass);
+    //m_mumu.setBins(1000);
+    //RooDataHist *binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu), *treemass);
+    RooDataHist *binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu),RooFit::Import(*Jpsi_hist));
     delete tree;
 
     // mass around JPsi
@@ -923,11 +927,16 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
 
     // V3 - for finding scaling of nentries with time taken to fit
-    RooRealVar nsig("nsig", "", massCut4->numEntries() / 5);
+    /*RooRealVar nsig("nsig", "", massCut4->numEntries() / 5);
     RooRealVar nbkg("nbkg", "", massCut4->numEntries());
     RooRealVar nsig_only("nsig_only", "", massCut4->numEntries() / 5);
-    RooRealVar nbkg_only("nbkg_only", "", massCut4->numEntries());
-
+    RooRealVar nbkg_only("nbkg_only", "", massCut4->numEntries());*/
+    
+    RooRealVar nsig("nsig", "", binned_tree_mass->sum(kTRUE) / 5);
+    RooRealVar nbkg("nbkg", "", binned_tree_mass->sum(kTRUE)*0.8);
+    RooRealVar nsig_only("nsig_only", "", binned_tree_mass->sum(kTRUE) / 5);
+    RooRealVar nbkg_only("nbkg_only", "", binned_tree_mass->sum(kTRUE)*0.8);
+    
     /*
      * option 'totalEntries' specifies whether to use total number of entries
      * from 0-10GeV in the file for initial nsig or nbkg.
@@ -941,7 +950,6 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
 
     std::cout << "nsig: " << nsig.getValV() << std::endl;
     std::cout << "nbkg: " << nbkg.getValV() << std::endl;
-
     nsig.setConstant(kFALSE);
     nbkg.setConstant(kFALSE);
     nsig_only.setConstant(kFALSE);
@@ -1012,19 +1020,24 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     w->var(dcbfit_NE+"_frac")->setVal(1.50803e-01);
 */
     // V4 - for testing, from 1 000 000 entry file fit, Strategy 1, total entries
-    w->var(dcbfit_NE+"_CB_mu1")->setVal(3.0632e+00);
-    w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.6663e+00);
-    w->var(dcbfit_NE+"_CB_sigma1")->setVal(5.1557e-02);
-    w->var(dcbfit_NE+"_CB_n1")->setVal(7.8780e-01);
-    w->var(dcbfit_NE+"_CB_mu2")->setVal(3.0931e+00);
-    w->var(dcbfit_NE+"_CB_alpha2")->setVal(-1.0267e+00);
-    w->var(dcbfit_NE+"_CB_sigma2")->setVal(2.9637e-02);
-    w->var(dcbfit_NE+"_CB_n2")->setVal(1.0033e+02);
-    w->var(dcbfit_NE+"_frac")->setVal(3.6957e-01);
-
-    // s+b model
-    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws)), RooArgList(nsig, nbkg));
     
+    w->var(dcbfit_NE+"_CB_mu")->setVal(3.1e+00);
+    w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.5e+00);
+    w->var(dcbfit_NE+"_CB_sigma")->setVal(1.0193e-02);
+    w->var(dcbfit_NE+"_CB_n1")->setVal(1.0e+00);
+    w->var(dcbfit_NE+"_CB_alpha2")->setVal(-1.5e+00);
+    w->var(dcbfit_NE+"_CB_n2")->setVal(1.0033e+02);
+
+    w->var(sig_only_function_ws+"_CB_mu")->setVal(3.1e+00);
+    w->var(sig_only_function_ws+"_CB_alpha1")->setVal(1.5e+00);
+    w->var(sig_only_function_ws+"_CB_sigma")->setVal(1.0193e-02);
+    w->var(sig_only_function_ws+"_CB_n1")->setVal(1.0e+00);
+    w->var(sig_only_function_ws+"_CB_alpha2")->setVal(-1.5e+00);
+    w->var(sig_only_function_ws+"_CB_n2")->setVal(1.0033e+02);
+    std::cout<<"Finished setting sig params\n";
+       // s+b model
+    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws)), RooArgList(nsig, nbkg));
+    std::cout<<"sb model\n";
     // s-only model
     RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
 
@@ -1037,9 +1050,21 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     //RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"), RooFit::Timer(1), RooFit::Strategy(0), RooFit::NumCPU(32));
     RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"),RooFit::Strategy(0));
     t.Print();
+
+
+    
+    //--------------------------------------------------------------------
+    //sig only fit
+    //--------------------------------------------------------------------
+    t.Start();
+    //RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"), RooFit::Timer(1), RooFit::Strategy(0), RooFit::NumCPU(32));
+    RooFitResult *s_only_fit = s_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("sig"),RooFit::Strategy(0));
+
+    t.Print();
     
     /*
-     * Plot B fit
+   
+  * Plot B fit
      */
     TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
     RooPlot *frameB = new RooPlot("frameB", "frameB", m_mumu, 1.2, 4.0, 100);
@@ -1055,6 +1080,30 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     cb->Update();
     cb->SaveAs("b_JPsi_" + f_bkg + "_"  + imgTag + ".png");
 
+    TCanvas *cs = new TCanvas("cs", "cs", 800, 700);
+    RooPlot *frameS = new RooPlot("frameS", "frameS", m_mumu, 1.2, 4.0, 100);
+    binned_tree_mass->plotOn(frameS);
+    s_only_model->plotOn(frameS, RooFit::Name("sig_only"), RooFit::LineColor(kGreen), RooFit::Range("sig"), RooFit::NormRange("sig"));
+    //w->pdf(dcbfit_NE)->plotOn(frameS, RooFit::Name("dcbfit_NE"), RooFit::LineColor(kGreen), RooFit::Range("sig"), RooFit::NormRange("sig"));
+    //b_only_model->plotOn(frameB, RooFit::Name(f_bkg), RooFit::LineColor(kBlue), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
+    //    w->pdf(bwfit)->plotOn(frameS, RooFit::Name("bwfit"));
+//    w->pdf(cbfit)->plotOn(frameS, RooFit::Name("cbfit"), RooFit::LineColor(kRed));
+//    w->pdf(dcbfit)->plotOn(frameS, RooFit::Name("dcbfit"), RooFit::LineColor(kGray));
+//    w->pdf(dcbfit_NE_old)->plotOn(frameS, RooFit::Name("dcbfit_NE_old"), RooFit::LineColor(kRed));
+    frameS->Draw();
+    frameS->SetTitle("");
+
+    TLegend *legS = new TLegend(0.1,0.7,0.4,0.9);
+    legS->AddEntry(frameS->findObject("dcbfit_NE"), "dcb_NE");
+//    legS->AddEntry(frameS->findObject("bwfit"), "bw");
+//    legS->AddEntry(frameS->findObject("cbfit"), "cb");
+//    legS->AddEntry(frameS->findObject("dcbfit"), "dcb");
+//    legS->AddEntry(frameS->findObject("dcbfit_NE_old"), "dcb_NE_old");
+    legS->Draw();
+
+    cs->SetLogy();
+    cs->Update();
+    cs->SaveAs("s_JPsi_" + f_bkg + "_" + imgTag + ".png");
 
     //------------------------------------------------------
     //Set S+B initial parameters to those of the b-only fit
@@ -1080,47 +1129,45 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
         w->var(bkg_function_ws+"_alpha1")->setVal(w->var(bkg_only_function_ws+"_alpha1")->getVal());
         w->var(bkg_function_ws+"_alpha2")->setVal(w->var(bkg_only_function_ws+"_alpha2")->getVal());
     }
-
-
-    //------------
+    /*
+    w->var(dcbfit_NE+"_CB_mu1")->setVal(w->var(sig_only_function_ws+"_CB_mu1")->getVal());
+    w->var(dcbfit_NE+"_CB_alpha1")->setVal(w->var(sig_only_function_ws+"_CB_alpha1")->getVal());
+    w->var(dcbfit_NE+"_CB_sigma1")->setVal(w->var(sig_only_function_ws+"_CB_sigma1")->getVal());
+    w->var(dcbfit_NE+"_CB_n1")->setVal(w->var(sig_only_function_ws+"_CB_n1")->getVal());
+    w->var(dcbfit_NE+"_CB_mu2")->setVal(w->var(sig_only_function_ws+"_CB_mu2")->getVal());
+    w->var(dcbfit_NE+"_CB_alpha2")->setVal(w->var(sig_only_function_ws+"_CB_alpha2")->getVal());
+    w->var(dcbfit_NE+"_CB_sigma2")->setVal(w->var(sig_only_function_ws+"_CB_sigma2")->getVal());
+    w->var(dcbfit_NE+"_CB_n2")->setVal(w->var(sig_only_function_ws+"_CB_n2")->getVal());
+    w->var(dcbfit_NE+"_frac")->setVal(w->var(sig_only_function_ws+"_frac")->getVal());
+    
+    std::cout<<"CB_mu1 : "<<w->var(sig_only_function_ws+"_CB_mu1")->getVal()<<std::endl;
+    std::cout<<"CB_alpha1 : "<<w->var(sig_only_function_ws+"_CB_alpha1")->getVal()<<std::endl;
+    std::cout<<"CB_sigma1 : "<<w->var(sig_only_function_ws+"_CB_sigma1")->getVal()<<std::endl;
+    std::cout<<"CB_n1 : "<<w->var(sig_only_function_ws+"_CB_n1")->getVal()<<std::endl;
+    std::cout<<"CB_mu2 : "<<w->var(sig_only_function_ws+"_CB_mu2")->getVal()<<std::endl;
+    std::cout<<"CB_alpha2 : "<<w->var(sig_only_function_ws+"_CB_alpha2")->getVal()<<std::endl;
+    std::cout<<"CB_sigma2 : "<<w->var(sig_only_function_ws+"_CB_sigma2")->getVal()<<std::endl;
+    std::cout<<"CB_n2 : "<<w->var(sig_only_function_ws+"_CB_n2")->getVal()<<std::endl;
+    std::cout<<"frac : "<<w->var(sig_only_function_ws+"_frac")->getVal()<<std::endl;
+    */   
+    
+ //------------
     //s+b fit
     //-------------
     t.Start();
-    RooFitResult *sb_fit = sb_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("JPsi"), RooFit::Timer(1), RooFit::Strategy(0));
-    //RooFitResult *sb_fit;
+    //RooFitResult *sb_fit = sb_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("JPsi"), RooFit::Timer(1), RooFit::Strategy(0));
+    RooFitResult *sb_fit;
     t.Print();
     
     /*
      * Plot S fit
      */
-    TCanvas *cs = new TCanvas("cs", "cs", 800, 700);
-    RooPlot *frameS = new RooPlot("frameS", "frameS", m_mumu, 1.2, 4.0, 100);
-    binned_tree_mass->plotOn(frameS);
-
-    w->pdf(dcbfit_NE)->plotOn(frameS, RooFit::Name("dcbfit_NE"), RooFit::LineColor(kGreen), RooFit::Range("sig"), RooFit::NormRange("sig"));
-//    w->pdf(bwfit)->plotOn(frameS, RooFit::Name("bwfit"));
-//    w->pdf(cbfit)->plotOn(frameS, RooFit::Name("cbfit"), RooFit::LineColor(kRed));
-//    w->pdf(dcbfit)->plotOn(frameS, RooFit::Name("dcbfit"), RooFit::LineColor(kGray));
-//    w->pdf(dcbfit_NE_old)->plotOn(frameS, RooFit::Name("dcbfit_NE_old"), RooFit::LineColor(kRed));
-    frameS->Draw();
-    frameS->SetTitle("");
-
-    TLegend *legS = new TLegend(0.1,0.7,0.4,0.9);
-    legS->AddEntry(frameS->findObject("dcbfit_NE"), "dcb_NE");
-//    legS->AddEntry(frameS->findObject("bwfit"), "bw");
-//    legS->AddEntry(frameS->findObject("cbfit"), "cb");
-//    legS->AddEntry(frameS->findObject("dcbfit"), "dcb");
-//    legS->AddEntry(frameS->findObject("dcbfit_NE_old"), "dcb_NE_old");
-    legS->Draw();
-
-    cs->SetLogy();
-    cs->Update();
-    cs->SaveAs("s_JPsi_" + f_bkg + "_" + imgTag + ".png");
 
 
     /*
      * Plot S+B fit
      */
+    
     TCanvas *csb = new TCanvas("csb", "csb", 800, 700);
     RooPlot *frameSB = new RooPlot("frameSB", "frameSB", m_mumu, 1.2, 4.0, 100);
     binned_tree_mass->plotOn(frameSB, RooFit::Name("data"));
@@ -1153,7 +1200,7 @@ int SplusB_fit_test(TTree* tree, bool totalEntries, const char* fitOutFile, TStr
     csb->SetLogy();
     csb->Update();
     csb->SaveAs("sb_JPsi_" + f_bkg + "_"  + imgTag + ".png");
-
+   
     /*
      * Get fit output to txt file
      */

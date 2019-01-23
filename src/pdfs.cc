@@ -16,7 +16,7 @@
 
 // LOCAL INCLUDES
 #include "pdfs.h"
-
+# include "CustomPdfs.hh"
 /*
  * Wrappers for the PDFs.
  *
@@ -59,7 +59,7 @@ TString MakeCB(bool extended, TString tag, double mass, RooRealVar &mzd, RooWork
 
     return tag;
 }
-
+/*
 TString MakeDoubleCB(bool extended, TString tag, double mass, RooRealVar &mzd, RooWorkspace &w) {
     RooRealVar *mu1 = new RooRealVar(tag+"_CB_mu1", "#mu_{1}", mass, "");
     RooRealVar *alpha1 = new RooRealVar(tag+"_CB_alpha1", "#alpha_{1}", 1.5, "");
@@ -102,7 +102,33 @@ TString MakeDoubleCB(bool extended, TString tag, double mass, RooRealVar &mzd, R
 
     return tag;
 }
+*/
+TString MakeDoubleCB(bool extended, TString tag, double mass, RooRealVar &mzd, RooWorkspace &w) {
+    RooRealVar *mu = new RooRealVar(tag+"_CB_mu", "#mu", mass, "");
+    RooRealVar *alpha1 = new RooRealVar(tag+"_CB_alpha1", "#alpha_{1}", 1.5, "");
+    RooRealVar *sigma = new RooRealVar(tag+"_CB_sigma", "#sigma", 1.1, "");
+    RooRealVar *n1 = new RooRealVar(tag+"_CB_n1", "#n_{1}", 1.0, "");
+    RooRealVar *alpha2 = new RooRealVar(tag+"_CB_alpha2", "#alpha_{2}", 1.5, "");
+    RooRealVar *n2 = new RooRealVar(tag+"_CB_n2", "#n_{2}", 1.0, "");
 
+
+    mu->setConstant(kFALSE);
+    alpha1->setConstant(kFALSE);
+    sigma->setConstant(kFALSE);
+    alpha2->setConstant(kFALSE);
+    n1->setConstant(kFALSE);
+    n1->setRange(0, 1000);
+    n2->setConstant(kFALSE);
+    n2->setRange(0, 1000);
+
+    RooRealVar *Ns = new RooRealVar(tag+"_Ns", "N_{s}", 1, "events");
+    Ns->setConstant(kFALSE);
+    RooDoubleCB *dcb = new RooDoubleCB(tag+"_NE", "dcb", mzd,*mu, *sigma, *alpha1, *n1, *alpha2, *n2);
+    RooAddPdf *ext_dcb = new RooAddPdf(tag, "ext_dcb", RooArgList(*dcb), RooArgList(*Ns));
+    w.import(*ext_dcb);
+
+    return tag;
+}
 TString MakeDoubleCB_NE(TString tag, double mass, RooRealVar &mzd, RooWorkspace &w) {
     RooRealVar *mu1 = new RooRealVar(tag+"_CB_mu1", "#mu_{1}", mass, "");
     RooRealVar *alpha1 = new RooRealVar(tag+"_CB_alpha1", "#alpha_{1}", 1.5, "");
