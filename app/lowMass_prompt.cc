@@ -128,17 +128,18 @@ int main(int argc, char* argv[]) {
     // For removing the 'memory-resident TTree' errors
     TFile *temp = new TFile("temp.root", "recreate");
     TTree *tree;
+    TH1D* histo;
 
     if (tchain) {
         // Get TTree from files
         tree = makeDataTree(inputFiles.c_str());
     }
-
     else {
         // Get TTree
         TFile *file = new TFile(inputFiles.c_str(), "read");
         temp->cd();
-        tree = (TTree*) file->Get("tree");
+        //tree = (TTree*) file->Get("tree");
+        histo = (TH1D*)file->Get("mass_1p5To3p5");
     }
 
     //tree->Print();
@@ -147,5 +148,6 @@ int main(int argc, char* argv[]) {
     TString cut = "";
 
     // Do S+B fitting
-    SplusB_fit_test(tree->CopyTree(cut), totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
+    //SplusB_fit_test(tree->CopyTree(cut), totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
+    SplusB_fit_test(histo, totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
 }

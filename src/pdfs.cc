@@ -113,22 +113,33 @@ TString MakeDoubleCB(bool extended, TString tag, double mass, RooRealVar &mzd, R
 
 
     mu->setConstant(kFALSE);
-    alpha1->setConstant(kFALSE);
     sigma->setConstant(kFALSE);
+    alpha1->setConstant(kFALSE);
+    alpha1->setRange(0, 10);
     alpha2->setConstant(kFALSE);
+    alpha2->setRange(0, 10);
     n1->setConstant(kFALSE);
     n1->setRange(0, 1000);
     n2->setConstant(kFALSE);
     n2->setRange(0, 1000);
 
-    RooRealVar *Ns = new RooRealVar(tag+"_Ns", "N_{s}", 1, "events");
-    Ns->setConstant(kFALSE);
-    RooDoubleCB *dcb = new RooDoubleCB(tag+"_NE", "dcb", mzd,*mu, *sigma, *alpha1, *n1, *alpha2, *n2);
-    RooAddPdf *ext_dcb = new RooAddPdf(tag, "ext_dcb", RooArgList(*dcb), RooArgList(*Ns));
-    w.import(*ext_dcb);
+    if ( extended )
+    {
+      RooRealVar *Ns = new RooRealVar(tag+"_Ns", "N_{s}", 1, "events");
+      Ns->setConstant(kFALSE);
+      RooDoubleCB *dcb = new RooDoubleCB(tag+"_NE", "dcb", mzd,*mu, *sigma, *alpha1, *n1, *alpha2, *n2);
+      RooAddPdf *ext_dcb = new RooAddPdf(tag, "ext_dcb", RooArgList(*dcb), RooArgList(*Ns));
+      w.import(*ext_dcb);
+    }
+    else
+    {
+      RooDoubleCB *dcb = new RooDoubleCB(tag, "dcb", mzd,*mu, *sigma, *alpha1, *n1, *alpha2, *n2);
+      w.import(*dcb);
+    }
 
     return tag;
-}
+};
+
 TString MakeDoubleCB_NE(TString tag, double mass, RooRealVar &mzd, RooWorkspace &w) {
     RooRealVar *mu1 = new RooRealVar(tag+"_CB_mu1", "#mu_{1}", mass, "");
     RooRealVar *alpha1 = new RooRealVar(tag+"_CB_alpha1", "#alpha_{1}", 1.5, "");
@@ -205,6 +216,7 @@ TString MakeBreitWigner_NE(TString tag, double mass, double lifetime, RooRealVar
 TString MakeExpo(bool extended, TString tag, RooRealVar &mzd, RooWorkspace &w) {
   RooRealVar *lambda = new RooRealVar(tag+"_lambdaExpo", "#lambda", -0.1, "");
   lambda->setConstant(kFALSE);
+  lambda->setRange(-100,0);
   if (extended)
   {
     RooRealVar *Nbkg = new RooRealVar(tag+"_Nbkg", "N_{bkg}", 1, "events");
@@ -363,7 +375,7 @@ TString MakeDoublePow(TString tag, RooRealVar &mzd, RooWorkspace &w, bool ext) {
 
 	RooGenericPdf *pow1 = new RooGenericPdf(tag+"_pow1", "", "@0^@1", RooArgList(mzd, *alpha1));
 	RooGenericPdf *pow2 = new RooGenericPdf(tag+"_pow2", "", "@0^@1", RooArgList(mzd, *alpha2));
-    
+
     if ( ext )
     {
         RooRealVar *Nbkg    = new RooRealVar(tag+"_Nbkg","N_{bkg}", 1, "events");
