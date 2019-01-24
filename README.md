@@ -26,9 +26,15 @@ The executable to do the fitting is `./lowMass_prompt`. There are two ways to ru
 
 1. Running on a single skimmed Ntuple
     ```
+    cd include
+    make
+    cd ../
     make
     ./lowMass_prompt -inputFiles=inputfile
     ```
+    Now we only use binned fits. So use this as the histogram input file
+   `-inputFiles= /mnt/hadoop/store/user/idutta/DarkPhoton/Samples/outHist_18Jan2019/massHist_Full.root'
+
     If `-inputFiles` is not specified, the default skimmed Ntuple used is `/mnt/hadoop/store/user/idutta/DarkPhoton/Samples/xcg2Dec2018/2Dec2018xcg_job0_scout_skimmed.root`.
 
 2. Running on multiple skimmed Ntuples
@@ -61,6 +67,23 @@ Specifies program to use the number of entries in the range 0 - 10 GeV from the 
 Example:
 ```
 ./lowMass_prompt -totalEntries
+```
+`-f_bkg`
+Specifies the background function
+Example:
+```
+./lowMass_prompt -f_bkg=single_exp
+./lowMass_prompt -f_bkg=double_exp
+./lowMass_prompt -f_bkg=single_pow
+./lowMass_prompt -f_bkg=poly2
+./lowMass_prompt -f_bkg=poly3
+./lowMass_prompt -f_bkg=poly4
+```
+### To run the Plotting script (allFits.cc)
+```
+make
+
+./plot_signal
 ```
 
 ### Skimmed NTuples
