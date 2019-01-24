@@ -15,6 +15,7 @@ TARGET4 = create_reduced_tree
 TARGET5 = create_subTree
 TARGET6 = checkFits
 TARGET7 = binnedFits
+TARGET8 = plot_signal
 
 SRC = app/getLimits.cc src/fitDarkphoton.cc src/pdfs.cc $(TOOLS)/src/CommandLineInput.cc
 SRC2 = app/lowMass_prompt.cc src/fitDarkphoton.cc src/pdfs.cc $(TOOLS)/src/CommandLineInput.cc src/dataTree.cc
@@ -22,6 +23,7 @@ SRC4 = app/create_reduced_tree.cc src/tree.cc $(TOOLS)/src/CommandLineInput.cc
 SRC5 = app/create_subTree.cc src/subTree.cc 
 SRC6 = app/checkFits.cc src/pdfs.cc
 SRC7 = app/binnedFits.cc src/pdfs.cc
+SRC8 = allFits.cc src/CustomPdfs.cc
 
 OBJ = $(SRC:.cc=.o)
 OBJ2 = $(SRC2:.cc=.o)
@@ -29,10 +31,11 @@ OBJ4 = $(SRC4:.cc=.o)
 OBJ5 = $(SRC5:.cc=.o)
 OBJ6 = $(SRC6:.cc=.o)
 OBJ7 = $(SRC7:.cc=.o)
+OBJ8 = $(SRC8:.cc=.o)
 
 .PHONY: all clean
 
-all : $(TARGET) $(TARGET2) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7)
+all : $(TARGET) $(TARGET2) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET8)
 
 $(TARGET) : $(OBJ)
 	$(LD) $(CPPFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
@@ -70,10 +73,16 @@ $(TARGET7) : $(OBJ7)
 	@echo $<
 	@echo $^
 
+$(TARGET8) : $(OBJ8)
+	$(LD) $(CPPFLAGS) -o $(TARGET8) $(OBJ8) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
 %.o : %.cc
 	$(CXX) $(CPPFLAGS) -o $@ -c $<
 	@echo $@
 	@echo $<
 
 clean :
-	rm -f *.o app/*.o src/*.o $(TOOLS)/src/*.o $(TARGET) $(TARGET2) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) *~
+	rm -f *.o app/*.o src/*.o $(TOOLS)/src/*.o $(TARGET) $(TARGET2) $(TARGET4) $(TARGET5) $(TARGET6) $(TARGET7) $(TARGET8) *~
