@@ -33,7 +33,8 @@ The executable to do the fitting is `./lowMass_prompt`. There are two ways to ru
     ./lowMass_prompt -inputFiles=inputfile
     ```
     Now we only use binned fits. So use this as the histogram input file
-   `-inputFiles= /mnt/hadoop/store/user/idutta/DarkPhoton/Samples/outHist_18Jan2019/massHist_Full.root'
+    
+   `-inputFiles= /mnt/hadoop/store/user/idutta/DarkPhoton/Samples/outHist_18Jan2019/massHist_Full.root`
 
     If `-inputFiles` is not specified, the default skimmed Ntuple used is `/mnt/hadoop/store/user/idutta/DarkPhoton/Samples/xcg2Dec2018/2Dec2018xcg_job0_scout_skimmed.root`.
 
