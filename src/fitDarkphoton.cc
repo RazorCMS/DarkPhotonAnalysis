@@ -1122,6 +1122,7 @@ int SplusB_fit_test(TH1D* histo, bool totalEntries, const char* fitOutFile, TStr
     }
 
     // Import information to RooWorkspace
+    w->import(m_mumu);
     w->import(*binned_tree_mass);
     w->import(*sb_model);
     w->import(*b_only_model);
