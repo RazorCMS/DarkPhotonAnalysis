@@ -139,7 +139,9 @@ int main(int argc, char* argv[]) {
         TFile *file = new TFile(inputFiles.c_str(), "read");
         temp->cd();
         //tree = (TTree*) file->Get("tree");
-        histo = (TH1D*)file->Get("mass_1p5To3p5");
+        //histo = (TH1D*)file->Get("mass_1p5To3p5");
+	//histo = (TH1D*)file->Get("mass_3p3To5p5");
+	histo = (TH1D*)file->Get("mass_8To11");
     }
 
     //tree->Print();
@@ -149,5 +151,7 @@ int main(int argc, char* argv[]) {
 
     // Do S+B fitting
     //SplusB_fit_test(tree->CopyTree(cut), totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
-    SplusB_fit_test(histo, totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
+    //SplusB_fit_test(histo, totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
+    //SplusB_fit_Psi_prime(histo, totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
+    SplusB_fit_Upsilon(histo, totalEntries, fitOutFile.c_str(), imgTag.c_str(), f_bkg.c_str());
 }
