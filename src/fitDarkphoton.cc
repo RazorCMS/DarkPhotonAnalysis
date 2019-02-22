@@ -48,6 +48,7 @@
 #include <RooDataHist.h>
 #include <RooHistPdf.h>
 #include <RooArgList.h>
+#include <RooVoigtian.h>
 //#include <RealVar.h>
 
 // LOCAL INCLUDES
@@ -1234,7 +1235,7 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     /*
      * Set Parameters
      */
-
+    /*
     w->var(dcbfit_NE+"_CB_mu")->setVal(3.68999e+00);
     w->var(dcbfit_NE+"_CB_sigma")->setVal(3.49211e-02);
     w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.12413e+00);
@@ -1248,6 +1249,79 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     w->var(sig_only_function_ws+"_CB_n1")->setVal(2.27134e+00);
     w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.27245e+00);
     w->var(sig_only_function_ws+"_CB_n2")->setVal(2.39776e+00);
+*/
+    w->var(dcbfit_NE+"_CB_mu")->setVal(3.68e+00);
+    w->var(dcbfit_NE+"_CB_sigma")->setVal(4.0e-02);
+    w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.04e+00);
+    w->var(dcbfit_NE+"_CB_n1")->setVal(139.26e+00);
+    w->var(dcbfit_NE+"_CB_alpha2")->setVal(1.13e+00);
+    w->var(dcbfit_NE+"_CB_n2")->setVal(91.38e+00);
+    /*
+    w->var(dcbfit_NE+"_CB_mu")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_sigma")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_alpha1")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_n1")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_alpha2")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_n2")->setConstant(kTRUE);
+    */
+    w->var(sig_only_function_ws+"_CB_mu")->setVal(3.68e+00);
+    w->var(sig_only_function_ws+"_CB_sigma")->setVal(4.0e-02);
+    w->var(sig_only_function_ws+"_CB_alpha1")->setVal(1.04e+00);
+    w->var(sig_only_function_ws+"_CB_n1")->setVal(139.26e+00);
+    w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.13e+00);
+    w->var(sig_only_function_ws+"_CB_n2")->setVal(91.38e+00);
+    
+    /*
+    w->var(sig_only_function_ws+"_CB_mu")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_sigma")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_alpha1")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_n1")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_alpha2")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_n2")->setConstant(kTRUE);
+    */
+
+    //------------------------------------------------------
+    //Set initial parameters to those of the b-only fit
+    //------------------------------------------------------
+    if ( f_bkg == "single_exp" )
+    {
+      w->var(bkg_only_function_ws+"_lambdaExpo")->setVal(-0.18);
+    }
+    else if( f_bkg == "double_exp" )
+    {
+      //std::cout <xo< "HERE" << std::endl;
+        w->var(bkg_only_function_ws+"_lambdaExpo1")->setVal(-0.30);
+        w->var(bkg_only_function_ws+"_lambdaExpo2")->setVal(1.99);
+        w->var(bkg_only_function_ws+"_frac")->setVal(0.96);
+        std::cout << "HERE 2" << std::endl;
+    }
+    else if ( f_bkg == "single_pow" )
+    {
+        w->var(bkg_function_ws+"_alpha")->setVal(-0.78);
+    }
+    else if( f_bkg == "poly2" )
+      {
+        w->var(bkg_only_function_ws+"_pC")->setVal(0.71);
+	w->var(bkg_only_function_ws+"_p0")->setVal(0.45);
+	w->var(bkg_only_function_ws+"_p1")->setVal(0.5);
+      }
+
+    else if( f_bkg == "poly3" )
+      {
+        w->var(bkg_only_function_ws+"_pC")->setVal(1.3);
+	w->var(bkg_only_function_ws+"_p0")->setVal(0.77);
+	w->var(bkg_only_function_ws+"_p1")->setVal(0.97);
+	w->var(bkg_only_function_ws+"_p2")->setVal(0.82);
+      }
+
+    else if( f_bkg == "poly4" )
+      {
+        w->var(bkg_only_function_ws+"_pC")->setVal(1.36);
+	w->var(bkg_only_function_ws+"_p0")->setVal(0.08);
+	w->var(bkg_only_function_ws+"_p1")->setVal(0.11);
+	w->var(bkg_only_function_ws+"_p2")->setVal(0.08);
+	w->var(bkg_only_function_ws+"_p3")->setVal(0.09);
+      }
     std::cout<<"Finished setting sig params\n";
     // s+b model
     RooRealVar *sfrac    = new RooRealVar("s_frac", "frac", 0.2, 0., 1.0, "");
@@ -1266,14 +1340,14 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     t.Print();
 
 
-
+    
     //--------------------------------------------------------------------
     //sig only fit
     //--------------------------------------------------------------------
     t.Start();
     RooFitResult *s_only_fit = w->pdf(sig_only_function_ws)->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig"),RooFit::Strategy(2));
     t.Print();
-
+    
     /*
 
   * Plot B fit
@@ -1457,6 +1531,379 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
 
     return 0;
 }
+int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, TString imgTag, TString f_bkg) {
+  // ~3.68 GeV -Psi'
+    double mass4 = 9.46;
+
+    TFile *file = new TFile("LowMassFits_Upsilon_" + f_bkg + ".root", "recreate");
+    RooWorkspace *w = new RooWorkspace("LowMassFits", "");
+
+    // Define Roo variable for mass
+    RooRealVar m_mumu("mass", "m_{#mu#mu}", 1, 11., "GeV");
+    m_mumu.setMin(1.);
+    m_mumu.setMax(11.);
+
+    // Test fitting JPsi first
+    m_mumu.setRange("m4", 8.0, 11.);
+    m_mumu.setRange("Upsilon",8.,11.);
+    m_mumu.setRange("low", 8.,9.2);
+    m_mumu.setRange("high", 10.5, 11.);
+
+    // Test fitting signal only
+    m_mumu.setRange("sig1", 9.2, 9.7);
+    m_mumu.setRange("sig2", 9.7, 10.3);
+    m_mumu.setRange("sig3", 10.1, 10.6);
+    //m_mumu.setRange("sig_plot", 2.8, 3.5);
+    //m_mumu.setRange("sig_plot", 3.5, 3.8);
+    //m_mumu.setRange("Psi_p", 3.3, 5.5);
+    RooDataHist *binned_tree_mass = new RooDataHist("binned_mass", "mass", RooArgList(m_mumu),RooFit::Import(*histo));
+    int i = 4;
+
+    /*
+     * Define signal shape
+     * "_NE" means non-extended PDF.
+     */
+    TString dcbfit_NE = MakeDoubleCB(false, Form("DCB_NE_sig%d", i), mass4, m_mumu, *w);
+    TString sig_only_function_ws = MakeDoubleCB(false, "double_cb_sig_only", mass4, m_mumu, *w);
+
+    /*
+     * Define background shape
+     * "_NE" means non-extended PDF.
+     */
+     TString bkg_function_ws;
+     TString bkg_only_function_ws;
+
+    if( f_bkg == "single_exp" )
+     {
+         bkg_function_ws = MakeExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if( f_bkg == "double_exp" )
+     {
+         bkg_function_ws = MakeDoubleExpo(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeDoubleExpo(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if( f_bkg == "single_pow" )
+     {
+         bkg_function_ws = MakeSinglePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
+         bkg_only_function_ws = MakeSinglePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
+     }
+     else if( f_bkg == "double_pow" )
+     {
+         bkg_function_ws = MakeDoublePow(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w, false);
+         bkg_only_function_ws = MakeDoublePow(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w, false);
+     }
+     else if ( f_bkg == "poly2" )
+     {
+         bkg_function_ws = MakeBernPoly2_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeBernPoly2_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if ( f_bkg == "poly3" )
+     {
+         bkg_function_ws = MakeBernPoly3_NE(Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeBernPoly3_NE(Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+     else if ( f_bkg == "poly4" )
+     {
+         bkg_function_ws = MakeBernPoly4(false, Form("%s_bkg_%d", f_bkg.Data(), i), m_mumu, *w);
+         bkg_only_function_ws = MakeBernPoly4(false, Form("%s_bkg_only_%d", f_bkg.Data(), i), m_mumu, *w);
+     }
+
+    RooRealVar nsig("nsig", "", binned_tree_mass->sum(kTRUE) / 5);
+    RooRealVar nbkg("nbkg", "", binned_tree_mass->sum(kTRUE)*0.8);
+    RooRealVar nsig_only("nsig_only", "", binned_tree_mass->sum(kTRUE) / 5);
+    RooRealVar nbkg_only("nbkg_only", "", binned_tree_mass->sum(kTRUE)*0.8);
+    RooRealVar nsig1_only("nsig1_only", "", binned_tree_mass->sum(kTRUE) / 5);
+    RooRealVar nsig2_only("nsig2_only", "", binned_tree_mass->sum(kTRUE) / 5);
+    std::cout << "nsig: " << nsig.getValV() << std::endl;
+    std::cout << "nsig_only: " << nsig_only.getValV() << std::endl;
+    std::cout << "nbkg: " << nbkg.getValV() << std::endl;
+    std::cout << "nbkg_only: " << nbkg_only.getValV() << std::endl;
+
+    nsig.setConstant(kFALSE);
+    nbkg.setConstant(kFALSE);
+    nsig_only.setConstant(kFALSE);
+    nsig1_only.setConstant(kFALSE);
+    nsig2_only.setConstant(kFALSE);
+    nbkg_only.setConstant(kFALSE);
+
+    /*
+     * Set Parameters
+     */
+    
+    w->var(dcbfit_NE+"_CB_mu")->setVal(9.46);
+    w->var(dcbfit_NE+"_CB_sigma")->setVal(3.49211e-02);
+    w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.12413e+00);
+    w->var(dcbfit_NE+"_CB_n1")->setVal(2.27134e+00);
+    w->var(dcbfit_NE+"_CB_alpha2")->setVal(1.27245e+00);
+    w->var(dcbfit_NE+"_CB_n2")->setVal(2.39776e+00);
+
+    w->var(sig_only_function_ws+"_CB_mu")->setVal(9.46);
+    w->var(sig_only_function_ws+"_CB_sigma")->setVal(3.49211e-02);
+    w->var(sig_only_function_ws+"_CB_alpha1")->setVal(1.12413e+00);
+    w->var(sig_only_function_ws+"_CB_n1")->setVal(2.27134e+00);
+    w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.27245e+00);
+    w->var(sig_only_function_ws+"_CB_n2")->setVal(2.39776e+00);
+
+    RooRealVar m_2S("m_2S","Y(2S) mass",10.023,10.0,10.1);
+    RooRealVar G_2S("G_2S","Y(2S) width",0.05,0.01,2.);
+    RooRealVar m_3S("m_3S","Y(3S) mass",10.355,10.2,10.4);
+    RooRealVar G_3S("G_3S","Y(3S) width",0.05,0.01,2.);
+    RooRealVar sigma_2S("sigma_2S","mass resolution",2.,0.,10.);
+    RooRealVar sigma_3S("sigma_3S","mass resolution",2.,0.,10.);
+    RooVoigtian *s1_only_model = new RooVoigtian("s1_only_model","signal mass PDF (voigtian)",m_mumu,m_2S,G_2S,sigma_2S);
+    RooVoigtian *s2_only_model = new RooVoigtian("s2_only_model","signal mass PDF (voigtian)",m_mumu,m_3S,G_3S,sigma_3S);
+    /*
+    w->var(dcbfit_NE+"_CB_mu")->setVal(3.68e+00);
+    w->var(dcbfit_NE+"_CB_sigma")->setVal(4.0e-02);
+    w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.04e+00);
+    w->var(dcbfit_NE+"_CB_n1")->setVal(139.26e+00);
+    w->var(dcbfit_NE+"_CB_alpha2")->setVal(1.13e+00);
+    w->var(dcbfit_NE+"_CB_n2")->setVal(91.38e+00);
+    /*
+    w->var(dcbfit_NE+"_CB_mu")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_sigma")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_alpha1")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_n1")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_alpha2")->setConstant(kTRUE);
+    w->var(dcbfit_NE+"_CB_n2")->setConstant(kTRUE);
+    
+    w->var(sig_only_function_ws+"_CB_mu")->setVal(3.68e+00);
+    w->var(sig_only_function_ws+"_CB_sigma")->setVal(4.0e-02);
+    w->var(sig_only_function_ws+"_CB_alpha1")->setVal(1.04e+00);
+    w->var(sig_only_function_ws+"_CB_n1")->setVal(139.26e+00);
+    w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.13e+00);
+    w->var(sig_only_function_ws+"_CB_n2")->setVal(91.38e+00);
+    
+    /*
+    w->var(sig_only_function_ws+"_CB_mu")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_sigma")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_alpha1")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_n1")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_alpha2")->setConstant(kTRUE);
+    w->var(sig_only_function_ws+"_CB_n2")->setConstant(kTRUE);
+    */
+    std::cout<<"Finished setting sig params\n";
+    // s+b model
+    RooRealVar *sfrac    = new RooRealVar("s_frac", "frac", 0.2, 0., 1.0, "");
+    RooRealVar *s1frac    = new RooRealVar("s1_frac", "frac", 0.2, 0., 1.0, "");
+    RooRealVar *s2frac    = new RooRealVar("s2_frac", "frac", 0.2, 0., 1.0, "");
+    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE),*s1_only_model,*s2_only_model, *w->pdf(bkg_function_ws)), RooArgList(*sfrac,*s1frac,*s2frac));
+
+    // s-only model
+    RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
+
+    // b-only model
+    RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws)), RooArgList(nbkg_only));
+
+    // b-only fit
+    TStopwatch t;
+    t.Start();
+    RooFitResult *b_only_fit = b_only_model->fitTo(*binned_tree_mass, RooFit::Extended(kTRUE), RooFit::Save(kTRUE), RooFit::Range("low,high"),RooFit::Strategy(0));
+    t.Print();
+
+
+    
+    //--------------------------------------------------------------------
+    //sig only fit
+    //--------------------------------------------------------------------
+    t.Start();
+    RooFitResult *s_only_fit = w->pdf(sig_only_function_ws)->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig1"),RooFit::Strategy(2));
+    t.Print();
+    
+    t.Start();
+    RooFitResult *s1_only_fit = s1_only_model->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig2"),RooFit::Strategy(2));
+    t.Print();
+
+    t.Start();
+    RooFitResult *s2_only_fit = s2_only_model->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig3"),RooFit::Strategy(2));
+    t.Print();
+    /*
+
+  * Plot B fit
+     */
+    TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
+    RooPlot *frameB = new RooPlot("frameB", "frameB", m_mumu, 8., 11., 1200);
+    binned_tree_mass->plotOn(frameB);
+
+    b_only_model->plotOn(frameB, RooFit::Name(f_bkg), RooFit::LineColor(kBlue), RooFit::Range("low,high"), RooFit::NormRange("low,high"));
+    frameB->Draw();
+    frameB->SetTitle("");
+    TLegend *legB = new TLegend(0.7,0.7,1.,0.9);
+    legB->AddEntry(frameB->findObject(f_bkg), f_bkg);
+    legB->Draw();
+    //cb->SetLogy();
+    cb->Update();
+    cb->SaveAs("b_Upsilon_" + f_bkg + "_"  + imgTag + ".png");
+
+    TCanvas *cs = new TCanvas("cs", "cs", 800, 700);
+    RooPlot *frameS = new RooPlot("frameS", "frameS", m_mumu, 8., 11., 1200);
+    binned_tree_mass->plotOn(frameS);
+    s_only_model->plotOn(frameS, RooFit::Name("sig_only"), RooFit::LineColor(kGreen), RooFit::Range("sig1"), RooFit::NormRange("sig1"));
+    s1_only_model->plotOn(frameS, RooFit::Name("sig1_only"), RooFit::LineColor(kGreen), RooFit::Range("sig2"), RooFit::NormRange("sig2"));
+    s2_only_model->plotOn(frameS, RooFit::Name("sig2_only"), RooFit::LineColor(kGreen), RooFit::Range("sig3"), RooFit::NormRange("sig3"));
+    frameS->Draw();
+    frameS->SetTitle("");
+
+    TLegend *legS = new TLegend(0.7,0.7,1.,0.9);
+    legS->AddEntry(frameS->findObject("dcbfit_NE"), "dcb_NE");
+    legS->Draw();
+
+    //cs->SetLogy();
+    cs->Update();
+    cs->SaveAs("s_Upsilon_" + f_bkg + "_" + imgTag + ".png");
+
+    //------------------------------------------------------
+    //Set S+B initial parameters to those of the b-only fit
+    //------------------------------------------------------
+    if ( f_bkg == "single_exp" )
+    {
+        w->var(bkg_function_ws+"_lambdaExpo")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo")->getVal());
+    }
+    else if( f_bkg == "double_exp" )
+    {
+      //std::cout <xo< "HERE" << std::endl;
+        w->var(bkg_function_ws+"_lambdaExpo1")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo1")->getVal());
+        w->var(bkg_function_ws+"_lambdaExpo2")->setVal(w->var(bkg_only_function_ws+"_lambdaExpo2")->getVal());
+        w->var(bkg_function_ws+"_frac")->setVal(w->var(bkg_only_function_ws+"_frac")->getVal());
+        std::cout << "HERE 2" << std::endl;
+    }
+    else if ( f_bkg == "single_pow" )
+    {
+        w->var(bkg_function_ws+"_alpha")->setVal(w->var(bkg_only_function_ws+"_alpha")->getVal());
+    }
+    else if ( f_bkg == "double_pow" )
+    {
+        w->var(bkg_function_ws+"_alpha1")->setVal(w->var(bkg_only_function_ws+"_alpha1")->getVal());
+        w->var(bkg_function_ws+"_alpha2")->setVal(w->var(bkg_only_function_ws+"_alpha2")->getVal());
+    }
+
+    //------------
+    //s+b fit
+    //-------------
+    t.Start();
+    RooFitResult *sb_fit = sb_model->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("Upsilon"), RooFit::Timer(1), RooFit::Strategy(0));
+    //RooFitResult *sb_fit;
+    t.Print();
+
+    /*
+     * Plot S fit
+     */
+
+
+    /*
+     * Plot S+B fit
+     */
+
+    TCanvas *csb = new TCanvas("csb", "csb", 800, 700);
+    RooPlot *frameSB = new RooPlot("frameSB", "frameSB", m_mumu, 8., 11., 1200);
+    binned_tree_mass->plotOn(frameSB, RooFit::Name("data"));
+    sb_model->plotOn(frameSB, RooFit::Name("sb_plot"), RooFit::LineColor(kBlue), RooFit::Range("Upsilon"), RooFit::NormRange("Upsilon"));
+
+    csb->cd();
+    frameSB->Draw();
+    frameSB->SetTitle("");
+
+    TLegend *legSB = new TLegend(0.7,0.7,1.,0.9);
+    legSB->AddEntry(frameSB->findObject("sb_plot"), "dcb + " + f_bkg);
+    legSB->Draw();
+
+    //csb->SetLogy();
+    csb->Update();
+    csb->SaveAs("sb_Upsilon_" + f_bkg + "_"  + imgTag + ".png");
+
+
+    // S h o w   r e s i d u a l   a n d   p u l l   d i s t s
+    // -------------------------------------------------------
+
+    // Construct a histogram with the residuals of the data w.r.t. the curve
+    RooHist* hresid = frameSB->residHist("data","sb_plot") ;
+
+    // Construct a histogram with the pulls of the data w.r.t the curve
+    RooHist* hpull = frameSB->pullHist("data","sb_plot") ;
+
+    // Create a new frame to draw the residual distribution and add the distribution to the frame
+    RooPlot *frame2 = new RooPlot("frameRes", "frameRes", m_mumu, 8., 11., 1200);
+    frame2->addPlotable(hresid,"p") ;
+
+    // Create a new frame to draw the pull distribution and add the distribution to the frame
+    RooPlot *frame3 = new RooPlot("framePull", "framePull", m_mumu, 8., 11., 1200);
+    frame3->addPlotable(hpull,"p") ;
+
+
+
+    TCanvas* cRes = new TCanvas("rf109_chi2residpull","rf109_chi2residpull",900,300) ;
+    cRes->Divide(3) ;
+    cRes->cd(1) ; gPad->SetLeftMargin(0.15) ; frameSB->GetYaxis()->SetTitleOffset(1.6) ; frameSB->Draw() ;
+    cRes->cd(2) ; gPad->SetLeftMargin(0.15) ; frame2->GetYaxis()->SetTitleOffset(1.6) ; frame2->Draw() ;
+    cRes->cd(3) ; gPad->SetLeftMargin(0.15) ; frame3->GetYaxis()->SetTitleOffset(1.6) ; frame3->Draw() ;
+    cRes->SaveAs("residual_Upsilon_" + f_bkg + "_"  + imgTag + ".png");
+    /*
+     * Get fit output to txt file
+     */
+    std::ofstream fit_file;
+    fit_file.open(fitOutFile);
+
+    if (fit_file.is_open()) {
+      int nParams=7; //(sig+sig_frac)
+      if( f_bkg == "single_exp" )
+     {
+       nParams+=1;
+     }
+     else if( f_bkg == "double_exp" )
+     {
+       nParams+=3;
+     }
+     else if( f_bkg == "single_pow" )
+     {
+       nParams+=1;
+     }
+     else if( f_bkg == "double_pow" )
+     {
+       nParams+=2;
+     }
+     else if ( f_bkg == "poly2" )
+     {
+       nParams+=3;
+     }
+     else if ( f_bkg == "poly3" )
+     {
+       nParams+=4;
+     }
+     else if ( f_bkg == "poly4" )
+     {
+       nParams+=5;
+     }
+      sb_fit->printMultiline(fit_file, 0, kTRUE);
+        fit_file << "Number of NLL evaluations with problems: " << sb_fit->numInvalidNLL() << std::endl;
+        fit_file << "chi2 " << frameSB->chiSquare("sb_plot", "data") << std::endl;
+	fit_file << "ndof: " << (histo->GetNbinsX()-nParams) << std::endl;
+	fit_file << "chi2/ndof: " <<frameSB->chiSquare("sb_plot", "data")/(histo->GetNbinsX()-nParams) << std::endl;
+        fit_file.close();
+    }
+
+    else {
+        std::cerr << "Unable to open fit output file." << std::endl;
+    }
+
+    // Import information to RooWorkspace
+    w->import(*binned_tree_mass);
+    w->import(*sb_model);
+    w->import(*b_only_model);
+    w->import(*sb_fit);
+    w->import(*b_only_fit);
+    w->import(nsig);
+    w->import(nbkg);
+    w->import(nbkg_only);
+
+    // Write file
+    w->Write("LowMassFits");
+    file->cd();
+    file->Close();
+
+    return 0;
+}
+
 /*
  * Fits the signal and background separately to get parametrized shapes. The shapes are used to write a data card for combine.
  *
