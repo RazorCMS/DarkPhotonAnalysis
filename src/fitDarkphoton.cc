@@ -1629,8 +1629,8 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
 
     /*
      * Set Parameters
-     */
-    
+     /*     */
+    /*
     w->var(dcbfit_NE+"_CB_mu")->setVal(9.46);
     w->var(dcbfit_NE+"_CB_sigma")->setVal(3.49211e-02);
     w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.12413e+00);
@@ -1644,23 +1644,46 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
     w->var(sig_only_function_ws+"_CB_n1")->setVal(2.27134e+00);
     w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.27245e+00);
     w->var(sig_only_function_ws+"_CB_n2")->setVal(2.39776e+00);
-
-    RooRealVar m_2S("m_2S","Y(2S) mass",10.023,10.0,10.1);
-    RooRealVar G_2S("G_2S","Y(2S) width",0.05,0.01,2.);
-    RooRealVar m_3S("m_3S","Y(3S) mass",10.355,10.2,10.4);
-    RooRealVar G_3S("G_3S","Y(3S) width",0.05,0.01,2.);
-    RooRealVar sigma_2S("sigma_2S","mass resolution",2.,0.,10.);
-    RooRealVar sigma_3S("sigma_3S","mass resolution",2.,0.,10.);
+    */
+    RooRealVar m_1S("m_1S","Y(1S) mass",9.44,9.4,9.5);
+    RooRealVar G_1S("G_1S","Y(1S) width",0.16,0.01,.5);
+    RooRealVar m_2S("m_2S","Y(2S) mass",10.00,10.0,10.1);
+    RooRealVar G_2S("G_2S","Y(2S) width",0.08,0.01,.5);
+    RooRealVar m_3S("m_3S","Y(3S) mass",10.325,10.2,10.4);
+    RooRealVar G_3S("G_3S","Y(3S) width",0.27,0.01,.5);
+    RooRealVar sigma_1S("sigma_1S","mass resolution",0.06,0.01,0.5);
+    RooRealVar sigma_2S("sigma_2S","mass resolution",0.08,0.01,0.5);
+    RooRealVar sigma_3S("sigma_3S","mass resolution",0.02,0.01,0.5);
+    /*
+    RooRealVar m_1S("m_1S","Y(1S) mass",9.44);
+    RooRealVar G_1S("G_1S","Y(1S) width",0.16);
+    RooRealVar m_2S("m_2S","Y(2S) mass",10.00);
+    RooRealVar G_2S("G_2S","Y(2S) width",0.08);
+    RooRealVar m_3S("m_3S","Y(3S) mass",10.325);
+    RooRealVar G_3S("G_3S","Y(3S) width",0.27);
+    RooRealVar sigma_1S("sigma_1S","mass resolution",0.06);
+    RooRealVar sigma_2S("sigma_2S","mass resolution",0.08);
+    RooRealVar sigma_3S("sigma_3S","mass resolution",0.02);
+    m_1S.setConstant(kTRUE);
+    G_1S.setConstant(kTRUE);
+    m_2S.setConstant(kTRUE);
+    G_2S.setConstant(kTRUE);
+    m_3S.setConstant(kTRUE);
+    G_3S.setConstant(kTRUE);
+    sigma_1S.setConstant(kTRUE);
+    sigma_2S.setConstant(kTRUE);
+    sigma_3S.setConstant(kTRUE);*/
     RooVoigtian *s1_only_model = new RooVoigtian("s1_only_model","signal mass PDF (voigtian)",m_mumu,m_2S,G_2S,sigma_2S);
     RooVoigtian *s2_only_model = new RooVoigtian("s2_only_model","signal mass PDF (voigtian)",m_mumu,m_3S,G_3S,sigma_3S);
+    RooVoigtian *s_only_model = new RooVoigtian("s_only_model","signal mass PDF (voigtian)",m_mumu,m_1S,G_1S,sigma_1S);
     /*
-    w->var(dcbfit_NE+"_CB_mu")->setVal(3.68e+00);
-    w->var(dcbfit_NE+"_CB_sigma")->setVal(4.0e-02);
-    w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.04e+00);
-    w->var(dcbfit_NE+"_CB_n1")->setVal(139.26e+00);
-    w->var(dcbfit_NE+"_CB_alpha2")->setVal(1.13e+00);
-    w->var(dcbfit_NE+"_CB_n2")->setVal(91.38e+00);
-    /*
+    w->var(dcbfit_NE+"_CB_mu")->setVal(9.46e+00);
+    w->var(dcbfit_NE+"_CB_sigma")->setVal(0.13);
+    w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.19);
+    w->var(dcbfit_NE+"_CB_n1")->setVal(0.20e+00);
+    w->var(dcbfit_NE+"_CB_alpha2")->setVal(1.23e+00);
+    w->var(dcbfit_NE+"_CB_n2")->setVal(0.19e+00);
+    
     w->var(dcbfit_NE+"_CB_mu")->setConstant(kTRUE);
     w->var(dcbfit_NE+"_CB_sigma")->setConstant(kTRUE);
     w->var(dcbfit_NE+"_CB_alpha1")->setConstant(kTRUE);
@@ -1668,14 +1691,14 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
     w->var(dcbfit_NE+"_CB_alpha2")->setConstant(kTRUE);
     w->var(dcbfit_NE+"_CB_n2")->setConstant(kTRUE);
     
-    w->var(sig_only_function_ws+"_CB_mu")->setVal(3.68e+00);
-    w->var(sig_only_function_ws+"_CB_sigma")->setVal(4.0e-02);
-    w->var(sig_only_function_ws+"_CB_alpha1")->setVal(1.04e+00);
-    w->var(sig_only_function_ws+"_CB_n1")->setVal(139.26e+00);
-    w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.13e+00);
-    w->var(sig_only_function_ws+"_CB_n2")->setVal(91.38e+00);
+    w->var(sig_only_function_ws+"_CB_mu")->setVal(9.46e+00);
+    w->var(sig_only_function_ws+"_CB_sigma")->setVal(0.13);
+    w->var(sig_only_function_ws+"_CB_alpha1")->setVal(1.19e+00);
+    w->var(sig_only_function_ws+"_CB_n1")->setVal(0.2e+00);
+    w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.23e+00);
+    w->var(sig_only_function_ws+"_CB_n2")->setVal(0.19e+00);
     
-    /*
+    
     w->var(sig_only_function_ws+"_CB_mu")->setConstant(kTRUE);
     w->var(sig_only_function_ws+"_CB_sigma")->setConstant(kTRUE);
     w->var(sig_only_function_ws+"_CB_alpha1")->setConstant(kTRUE);
@@ -1684,14 +1707,55 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
     w->var(sig_only_function_ws+"_CB_n2")->setConstant(kTRUE);
     */
     std::cout<<"Finished setting sig params\n";
+        if ( f_bkg == "single_exp" )
+    {
+      w->var(bkg_only_function_ws+"_lambdaExpo")->setVal(-0.018);
+    }
+    else if( f_bkg == "double_exp" )
+    {
+      //std::cout <xo< "HERE" << std::endl;
+        w->var(bkg_only_function_ws+"_lambdaExpo1")->setVal(-0.026);
+        w->var(bkg_only_function_ws+"_lambdaExpo2")->setVal(0.135);
+        w->var(bkg_only_function_ws+"_frac")->setVal(0.01);
+        std::cout << "HERE 2" << std::endl;
+    }
+    else if ( f_bkg == "single_pow" )
+    {
+        w->var(bkg_function_ws+"_alpha")->setVal(-0.1688);
+    }
+    else if( f_bkg == "poly2" )
+      {
+        w->var(bkg_only_function_ws+"_pC")->setVal(0.707);
+	w->var(bkg_only_function_ws+"_p0")->setVal(0.747);
+	w->var(bkg_only_function_ws+"_p1")->setVal(0.67);
+      }
+
+    else if( f_bkg == "poly3" )
+      {
+        w->var(bkg_only_function_ws+"_pC")->setVal(1.22);
+	w->var(bkg_only_function_ws+"_p0")->setVal(1.36);
+	w->var(bkg_only_function_ws+"_p1")->setVal(1.157);
+	w->var(bkg_only_function_ws+"_p2")->setVal(1.20);
+      }
+
+    else if( f_bkg == "poly4" )
+      {
+        w->var(bkg_only_function_ws+"_pC")->setVal(0.107);
+	w->var(bkg_only_function_ws+"_p0")->setVal(0.13);
+	w->var(bkg_only_function_ws+"_p1")->setVal(0.13);
+	w->var(bkg_only_function_ws+"_p2")->setVal(0.117);
+	w->var(bkg_only_function_ws+"_p3")->setVal(0.12);
+      }
+
     // s+b model
     RooRealVar *sfrac    = new RooRealVar("s_frac", "frac", 0.2, 0., 1.0, "");
     RooRealVar *s1frac    = new RooRealVar("s1_frac", "frac", 0.2, 0., 1.0, "");
     RooRealVar *s2frac    = new RooRealVar("s2_frac", "frac", 0.2, 0., 1.0, "");
-    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE),*s1_only_model,*s2_only_model, *w->pdf(bkg_function_ws)), RooArgList(*sfrac,*s1frac,*s2frac));
+    //RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE),*s1_only_model,*s2_only_model, *w->pdf(bkg_function_ws)), RooArgList(*sfrac,*s1frac,*s2frac));
+    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*s_only_model,*s1_only_model,*s2_only_model, *w->pdf(bkg_function_ws)), RooArgList(*sfrac,*s1frac,*s2frac));
 
     // s-only model
-    RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
+    //RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
 
     // b-only model
     RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws)), RooArgList(nbkg_only));
@@ -1707,8 +1771,10 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
     //--------------------------------------------------------------------
     //sig only fit
     //--------------------------------------------------------------------
+    
     t.Start();
-    RooFitResult *s_only_fit = w->pdf(sig_only_function_ws)->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig1"),RooFit::Strategy(2));
+    //RooFitResult *s_only_fit = w->pdf(sig_only_function_ws)->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig1"),RooFit::Strategy(2));
+    RooFitResult *s_only_fit =s_only_model->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig1"),RooFit::Strategy(2));
     t.Print();
     
     t.Start();
@@ -1718,9 +1784,9 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
     t.Start();
     RooFitResult *s2_only_fit = s2_only_model->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig3"),RooFit::Strategy(2));
     t.Print();
-    /*
+    
 
-  * Plot B fit
+  /* Plot B fit
      */
     TCanvas *cb = new TCanvas("cb", "cb", 800, 700);
     RooPlot *frameB = new RooPlot("frameB", "frameB", m_mumu, 8., 11., 1200);
@@ -1746,7 +1812,8 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
     frameS->SetTitle("");
 
     TLegend *legS = new TLegend(0.7,0.7,1.,0.9);
-    legS->AddEntry(frameS->findObject("dcbfit_NE"), "dcb_NE");
+    //legS->AddEntry(frameS->findObject("dcbfit_NE"), "dcb_NE");
+    legS->AddEntry(frameS->findObject("s_only_model"), "Voigtian");
     legS->Draw();
 
     //cs->SetLogy();
@@ -1805,7 +1872,7 @@ int SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, T
     frameSB->SetTitle("");
 
     TLegend *legSB = new TLegend(0.7,0.7,1.,0.9);
-    legSB->AddEntry(frameSB->findObject("sb_plot"), "dcb + " + f_bkg);
+    legSB->AddEntry(frameSB->findObject("sb_plot"), "Voigtian + " + f_bkg);
     legSB->Draw();
 
     //csb->SetLogy();
