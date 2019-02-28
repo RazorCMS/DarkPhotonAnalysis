@@ -916,7 +916,7 @@ int SplusB_fit_test(TH1D* histo, bool totalEntries, const char* fitOutFile, TStr
     /*
      * Set Parameters
      */
-
+    /*
     w->var(dcbfit_NE+"_CB_mu")->setVal(3.08999e+00);
     w->var(dcbfit_NE+"_CB_sigma")->setVal(3.49211e-02);
     w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.12413e+00);
@@ -930,13 +930,19 @@ int SplusB_fit_test(TH1D* histo, bool totalEntries, const char* fitOutFile, TStr
     w->var(sig_only_function_ws+"_CB_n1")->setVal(2.27134e+00);
     w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.27245e+00);
     w->var(sig_only_function_ws+"_CB_n2")->setVal(2.39776e+00);
+*/
+    RooRealVar m_1S("m_1S","Y(1S) mass",3.0899,3.0,3.1);
+    RooRealVar G_1S("G_1S","Y(1S) width",0.16,0.01,.5);
+    RooRealVar sigma_1S("sigma_1S","mass resolution",0.06,0.01,0.5);
+    RooVoigtian *s_only_model = new RooVoigtian("s_only_model","signal mass PDF (voigtian)",m_mumu,m_1S,G_1S,sigma_1S);
+
     std::cout<<"Finished setting sig params\n";
     // s+b model
     RooRealVar *sfrac    = new RooRealVar("s_frac", "frac", 0.2, 0., 1.0, "");
-    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws)), RooArgList(*sfrac));
+    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*s_only_model, *w->pdf(bkg_function_ws)), RooArgList(*sfrac));
 
     // s-only model
-    RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
+    //RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
 
     // b-only model
     RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws)), RooArgList(nbkg_only));
@@ -953,7 +959,7 @@ int SplusB_fit_test(TH1D* histo, bool totalEntries, const char* fitOutFile, TStr
     //sig only fit
     //--------------------------------------------------------------------
     t.Start();
-    RooFitResult *s_only_fit = w->pdf(sig_only_function_ws)->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig"),RooFit::Strategy(2));
+    RooFitResult *s_only_fit = s_only_model->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig"),RooFit::Strategy(2));
     t.Print();
 
     /*
@@ -1250,6 +1256,7 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.27245e+00);
     w->var(sig_only_function_ws+"_CB_n2")->setVal(2.39776e+00);
 */
+    /*
     w->var(dcbfit_NE+"_CB_mu")->setVal(3.68e+00);
     w->var(dcbfit_NE+"_CB_sigma")->setVal(4.0e-02);
     w->var(dcbfit_NE+"_CB_alpha1")->setVal(1.04e+00);
@@ -1263,14 +1270,14 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     w->var(dcbfit_NE+"_CB_n1")->setConstant(kTRUE);
     w->var(dcbfit_NE+"_CB_alpha2")->setConstant(kTRUE);
     w->var(dcbfit_NE+"_CB_n2")->setConstant(kTRUE);
-    */
+    
     w->var(sig_only_function_ws+"_CB_mu")->setVal(3.68e+00);
     w->var(sig_only_function_ws+"_CB_sigma")->setVal(4.0e-02);
     w->var(sig_only_function_ws+"_CB_alpha1")->setVal(1.04e+00);
     w->var(sig_only_function_ws+"_CB_n1")->setVal(139.26e+00);
     w->var(sig_only_function_ws+"_CB_alpha2")->setVal(1.13e+00);
     w->var(sig_only_function_ws+"_CB_n2")->setVal(91.38e+00);
-    
+    */
     /*
     w->var(sig_only_function_ws+"_CB_mu")->setConstant(kTRUE);
     w->var(sig_only_function_ws+"_CB_sigma")->setConstant(kTRUE);
@@ -1279,6 +1286,10 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     w->var(sig_only_function_ws+"_CB_alpha2")->setConstant(kTRUE);
     w->var(sig_only_function_ws+"_CB_n2")->setConstant(kTRUE);
     */
+    RooRealVar m_1S("m_1S","Y(1S) mass",3.6899,3.6,3.7);
+    RooRealVar G_1S("G_1S","Y(1S) width",0.16,0.01,.5);
+    RooRealVar sigma_1S("sigma_1S","mass resolution",0.06,0.01,0.5);
+    RooVoigtian *s_only_model = new RooVoigtian("s_only_model","signal mass PDF (voigtian)",m_mumu,m_1S,G_1S,sigma_1S);
 
     //------------------------------------------------------
     //Set initial parameters to those of the b-only fit
@@ -1325,10 +1336,10 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     std::cout<<"Finished setting sig params\n";
     // s+b model
     RooRealVar *sfrac    = new RooRealVar("s_frac", "frac", 0.2, 0., 1.0, "");
-    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*w->pdf(dcbfit_NE), *w->pdf(bkg_function_ws)), RooArgList(*sfrac));
+    RooAddPdf *sb_model = new RooAddPdf("sb_model", "sb_model", RooArgList(*s_only_model, *w->pdf(bkg_function_ws)), RooArgList(*sfrac));
 
     // s-only model
-    RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
+    // RooAddPdf *s_only_model = new RooAddPdf("s_only_model", "s_only_model", RooArgList(*w->pdf(sig_only_function_ws)), RooArgList(nsig_only));
 
     // b-only model
     RooAddPdf *b_only_model = new RooAddPdf("b_only_model", "b_only_model", RooArgList(*w->pdf(bkg_only_function_ws)), RooArgList(nbkg_only));
@@ -1345,7 +1356,7 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     //sig only fit
     //--------------------------------------------------------------------
     t.Start();
-    RooFitResult *s_only_fit = w->pdf(sig_only_function_ws)->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig"),RooFit::Strategy(2));
+    RooFitResult *s_only_fit = s_only_model->fitTo(*binned_tree_mass, RooFit::Save(kTRUE), RooFit::Range("sig"),RooFit::Strategy(2));
     t.Print();
     
     /*
@@ -1374,7 +1385,7 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     frameS->SetTitle("");
 
     TLegend *legS = new TLegend(0.7,0.7,1.,0.9);
-    legS->AddEntry(frameS->findObject("dcbfit_NE"), "dcb_NE");
+    legS->AddEntry(frameS->findObject("s_only_model"), "Voigtian");
     legS->Draw();
 
     //cs->SetLogy();
@@ -1433,7 +1444,7 @@ int SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile,
     frameSB->SetTitle("");
 
     TLegend *legSB = new TLegend(0.7,0.7,1.,0.9);
-    legSB->AddEntry(frameSB->findObject("sb_plot"), "dcb + " + f_bkg);
+    legSB->AddEntry(frameSB->findObject("sb_plot"), "Voigtian + " + f_bkg);
     legSB->Draw();
 
     //csb->SetLogy();
