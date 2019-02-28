@@ -37,6 +37,20 @@ The executable to do the fitting is `./lowMass_prompt`. There are two ways to ru
    `-inputFiles= /mnt/hadoop/store/user/idutta/DarkPhoton/Samples/outHist_18Jan2019/massHist_Full.root`
 
     If `-inputFiles` is not specified, the default skimmed Ntuple used is `/mnt/hadoop/store/user/idutta/DarkPhoton/Samples/xcg2Dec2018/2Dec2018xcg_job0_scout_skimmed.root`.
+    
+    There different functions defined in the src/fitDarkPhoton.cc for different peaks :
+    1. J/Psi : `SplusB_fit_test(TH1D* histo, bool totalEntries, const char* fitOutFile, TString imgTag, TString f_bkg)`
+    2. Psi ' : `SplusB_fit_Psi_prime(TH1D* histo, bool totalEntries, const char* fitOutFile, TString imgTag, TString f_bkg)`
+    3. Upsilon : `SplusB_fit_Upsilon(TH1D* histo, bool totalEntries, const char* fitOutFile, TString imgTag, TString f_bkg)`
+    
+    
+    
+    Make sure to call the right function while fitting in `app/lowMass_prompt.cc`. Also, make sure that the right histogram name is passed to the function in `app/lowMass_prompt.cc`. For e.g. : for Upsilon : `histo = (TH1D*)file->Get("mass_8To11");`
+    
+    
+    
+    Full command to run the fitting : 
+    `./lowMass_prompt -inputFiles=/mnt/hadoop/store/user/idutta/DarkPhoton/Samples/outHist_18Jan2019/massHist_Full.root -fitOutFile=fitSB_Psi_prime_single_exp_output.txt -f_bkg=single_exp`
 
 2. Running on multiple skimmed Ntuples
     ```
@@ -158,3 +172,14 @@ The implemented PDFs for fitting could be specified with the following:
 
 ### Background
 `/afs/cern.ch/work/u/ufay/public/CMSSW_9_4_0_patch1/src/trimscoutV2/all-trimscoutV2_2017C_primaryVtx_sub_full.root`
+
+
+## Condor Jobs for producing binned histograms
+`Dimuon_mass.py` is the main python code for this. 
+
+```
+mkdir condor_output
+mkdir condor_submit
+cd condor
+python makeCondorSubmit_massHists.py
+```
